@@ -120,3 +120,38 @@ class SearchResult(BaseModel):
     total_events: int
     pages_fetched: int
     requests: list[RequestResult]
+
+
+# --- Browser fetch output models ---
+
+
+class Attachment(BaseModel):
+    """A single attachment from a correspondence message."""
+
+    url: str
+    filename: str
+    message_id: str
+    part: str
+    local_path: str | None = None
+
+
+class CorrespondenceMessage(BaseModel):
+    """A single outgoing or incoming message on a request page."""
+
+    id: str  # e.g. "incoming-3236066" or "outgoing-12345"
+    direction: str  # "incoming" or "outgoing"
+    author: str
+    date: str
+    body: str
+    attachments: list[Attachment] = Field(default_factory=list)
+
+
+class FetchResult(BaseModel):
+    """Result of fetching a single FOI request page."""
+
+    url_title: str
+    url: str
+    output_dir: str
+    correspondence: list[CorrespondenceMessage]
+    attachments_downloaded: list[str] = Field(default_factory=list)
+    error: str | None = None

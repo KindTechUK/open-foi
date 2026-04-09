@@ -80,14 +80,17 @@ def search(ctx, query, status, authority, user, filetype, tag, max_pages, fmt, o
 
 
 @cli.command()
-@click.argument("url_title")
+@click.argument("url_titles", nargs=-1, required=True)
 @click.option("--output-dir", default=None, help="Base directory for fetched data (default: ./foi-data).")
 @click.option("--attachments/--no-attachments", default=True, help="Download attachments.")
 @click.pass_context
-def fetch(ctx, url_title, output_dir, attachments):
-    """Fetch full content and attachments for an FOI request (requires playwright)."""
+def fetch(ctx, url_titles, output_dir, attachments):
+    """Fetch full content and attachments for FOI request(s) (requires playwright).
+
+    Pass one or more request URL titles. Multiple titles use a shared browser session.
+    """
     try:
-        from foi_cli.browser import fetch_request
+        from foi_cli.browser import fetch_request, fetch_batch
     except ImportError:
         raise click.ClickException(
             "Playwright is required for `foi fetch`.\n"
@@ -99,7 +102,10 @@ def fetch(ctx, url_title, output_dir, attachments):
     output_dir = output_dir or config.fetch_output_dir
 
     try:
-        result = fetch_request(url_title, output_dir=output_dir, download_attachments=attachments)
+        if len(url_titles) == 1:
+            result = fetch_request(url_titles[0], output_dir=output_dir, download_attachments=attachments)
+        else:
+            result = fetch_batch(list(url_titles), output_dir=output_dir, download_attachments=attachments)
     except Exception as e:
         raise click.ClickException(str(e))
 
