@@ -89,14 +89,7 @@ def fetch(ctx, url_titles, output_dir, attachments):
 
     Pass one or more request URL titles. Multiple titles use a shared browser session.
     """
-    try:
-        from foi_cli.browser import fetch_request, fetch_batch
-    except ImportError:
-        raise click.ClickException(
-            "Playwright is required for `foi fetch`.\n"
-            "Install with: pip install foi-cli[browser]\n"
-            "Then run: playwright install chromium"
-        )
+    from foi_cli.browser import fetch_request, fetch_batch
 
     config = ctx.obj["config"]
     output_dir = output_dir or config.fetch_output_dir
@@ -104,12 +97,26 @@ def fetch(ctx, url_titles, output_dir, attachments):
     try:
         if len(url_titles) == 1:
             result = fetch_request(url_titles[0], output_dir=output_dir, download_attachments=attachments)
+            write_output(format_json_raw(result))
         else:
-            result = fetch_batch(list(url_titles), output_dir=output_dir, download_attachments=attachments)
+            results = fetch_batch(list(url_titles), output_dir=output_dir, download_attachments=attachments)
+            failures = [r for r in results if "error" in r]
+            write_output(format_json_raw(results))
+            if failures:
+                raise click.ClickException(
+                    f"{len(failures)}/{len(results)} requests failed. "
+                    "See output for details."
+                )
+    except ModuleNotFoundError:
+        raise click.ClickException(
+            "Playwright is required for `foi fetch`.\n"
+            "Install with: pip install foi-cli[browser]\n"
+            "Then run: playwright install chromium"
+        )
+    except click.ClickException:
+        raise
     except Exception as e:
         raise click.ClickException(str(e))
-
-    write_output(format_json_raw(result))
 
 
 def format_json_raw(data: dict) -> str:

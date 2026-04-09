@@ -193,6 +193,14 @@ def _sanitize_filename(name: str) -> str:
 def _download_attachment(page, link: dict, attachments_dir: Path) -> Path:
     """Download a single attachment using the browser context's cookies."""
     response = page.request.get(link["url"])
+    if not response.ok:
+        raise RuntimeError(f"HTTP {response.status} downloading {link['url']}")
+    content_type = response.headers.get("content-type", "")
+    if "text/html" in content_type:
+        raise RuntimeError(
+            f"Got HTML instead of attachment for {link['url']} "
+            f"(likely Cloudflare block or error page)"
+        )
     filename = _sanitize_filename(link["filename"])
     prefix = ""
     if link.get("message_id") and link.get("part"):
@@ -221,6 +229,7 @@ def fetch_request(
     """
     own_browser = _context is None
     browser = None
+    pw = None
 
     try:
         if own_browser:
@@ -270,7 +279,8 @@ def fetch_request(
         if own_browser:
             if browser:
                 browser.close()
-            pw.stop()
+            if pw:
+                pw.stop()
 
 
 def fetch_batch(

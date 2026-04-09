@@ -127,9 +127,6 @@ def search_all(client: WDTKClient, query: str, max_pages: int = 20) -> SearchRes
             break
         parsed = _parse_events(raw)
         all_events.extend(parsed)
-        if len(raw) < 25:
-            page += 1
-            break
         page += 1
 
     return _aggregate_requests(all_events, query, page - 1)

@@ -86,8 +86,13 @@ class WDTKClient:
                 return cached
 
         self._rate_limit()
-        resp = self._http.get(url)
-        resp.raise_for_status()
+        try:
+            resp = self._http.get(url)
+            resp.raise_for_status()
+        except httpx.HTTPStatusError as e:
+            raise WDTKError(f"HTTP {e.response.status_code}: {url}") from e
+        except httpx.RequestError as e:
+            raise WDTKError(f"Request failed: {url}: {e}") from e
         text = resp.text
         if cache_key and self._cache:
             self._cache.set(cache_key, text, cache_ttl)
