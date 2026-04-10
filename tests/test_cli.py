@@ -87,23 +87,20 @@ def test_search_with_status_filter(mock_cache_cls, mock_client_cls):
 @patch("foi_cli.cli.WDTKClient")
 @patch("foi_cli.cli.Cache")
 def test_fetch_missing_playwright(mock_cache_cls, mock_client_cls):
-    """foi fetch should show a clean error when playwright is not installed."""
+    """foi fetch should show a clean error when the runtime playwright import fails."""
     mock_client_cls.return_value = MagicMock()
     mock_cache_cls.return_value = MagicMock()
 
-    import sys
     runner = CliRunner()
-    # Temporarily remove foi_cli.browser from modules so the import inside
-    # the fetch command raises ModuleNotFoundError
-    saved = sys.modules.pop("foi_cli.browser", None)
-    try:
-        with patch.dict("sys.modules", {"foi_cli.browser": None}):
-            result = runner.invoke(cli, ["fetch", "some_request"])
-    finally:
-        if saved is not None:
-            sys.modules["foi_cli.browser"] = saved
+    # Simulate the real failure: browser module imports fine, but fetch_request
+    # raises ModuleNotFoundError when it tries `from playwright.sync_api import ...`
+    with patch(
+        "foi_cli.browser.fetch_request",
+        side_effect=ModuleNotFoundError("No module named 'playwright'"),
+    ):
+        result = runner.invoke(cli, ["fetch", "some_request"])
     assert result.exit_code != 0
-    assert "Playwright is required" in result.output or "playwright" in result.output.lower()
+    assert "Playwright is required" in result.output
 
 
 @patch("foi_cli.cli.WDTKClient")
