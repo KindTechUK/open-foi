@@ -190,15 +190,31 @@ def _sanitize_filename(name: str) -> str:
     return re.sub(r'[<>:"/\\|?*]', "_", name).strip(". ")
 
 
+def _is_html_attachment(url: str, response) -> bool:
+    """Check if the attachment is genuinely an HTML file (not an error page).
+
+    Uses the URL path and Content-Disposition header as authoritative sources,
+    since anchor text can be a generic label like 'Download'.
+    """
+    # Check Content-Disposition filename first (most authoritative)
+    disposition = response.headers.get("content-disposition", "")
+    if disposition:
+        match = re.search(r'filename[*]?=["\']?([^"\';]+)', disposition)
+        if match:
+            return match.group(1).strip().lower().endswith((".html", ".htm"))
+
+    # Fall back to the URL path
+    url_filename = _filename_from_url(url).lower()
+    return url_filename.endswith((".html", ".htm"))
+
+
 def _download_attachment(page, link: dict, attachments_dir: Path) -> Path:
     """Download a single attachment using the browser context's cookies."""
     response = page.request.get(link["url"])
     if not response.ok:
         raise RuntimeError(f"HTTP {response.status} downloading {link['url']}")
     content_type = response.headers.get("content-type", "")
-    filename_lower = link.get("filename", "").lower()
-    is_html_file = filename_lower.endswith((".html", ".htm"))
-    if "text/html" in content_type and not is_html_file:
+    if "text/html" in content_type and not _is_html_attachment(link["url"], response):
         raise RuntimeError(
             f"Expected file attachment but got text/html for {link['url']}"
         )
