@@ -1,6 +1,6 @@
 [project]
 name = "open-foi"
-version = "0.1.0"
+dynamic = ["version"]
 description = "CLI tool for searching, viewing, and fetching FOI requests from WhatDoTheyKnow.com"
 readme = "README.md"
 requires-python = ">=3.11"
@@ -41,8 +41,14 @@ dev = [
 foi = "foi_cli.cli:cli"
 
 [build-system]
-requires = ["hatchling"]
+requires = ["hatchling", "hatch-vcs"]
 build-backend = "hatchling.build"
+
+[tool.hatch.version]
+source = "vcs"
+
+[tool.hatch.build.hooks.vcs]
+version-file = "src/foi_cli/_version.py"
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/foi_cli"]

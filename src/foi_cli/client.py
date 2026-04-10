@@ -27,7 +27,7 @@ class WDTKClient:
         self._last_request_at = 0.0
         self._http = httpx.Client(
             timeout=self._config.timeout,
-            headers={"User-Agent": f"foi-cli/{__version__}"},
+            headers={"User-Agent": f"open-foi/{__version__}"},
             follow_redirects=True,
         )
 

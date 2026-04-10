@@ -8,3 +8,4 @@ build/
 .ruff_cache/
 cache.db
 foi-data/
+src/foi_cli/_version.py

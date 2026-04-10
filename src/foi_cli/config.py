@@ -1,4 +1,4 @@
-"""Configuration loader for foi-cli. Reads ~/.config/foi-cli/config.toml."""
+"""Configuration loader for open-foi. Reads ~/.config/open-foi/config.toml."""
 
 import tomllib
 from dataclasses import dataclass, field

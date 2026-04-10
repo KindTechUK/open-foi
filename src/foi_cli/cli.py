@@ -1,4 +1,4 @@
-"""CLI entry point for foi-cli."""
+"""CLI entry point for open-foi."""
 
 import logging
 import sys
