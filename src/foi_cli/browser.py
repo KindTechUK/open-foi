@@ -190,20 +190,38 @@ def _sanitize_filename(name: str) -> str:
     return re.sub(r'[<>:"/\\|?*]', "_", name).strip(". ")
 
 
+def _parse_content_disposition_filename(header: str) -> str | None:
+    """Extract filename from Content-Disposition header (RFC 6266 / RFC 5987).
+
+    Handles both plain `filename="report.html"` and RFC 5987
+    `filename*=UTF-8''report%20data.html` forms. Prefers filename* when present.
+    """
+    # RFC 5987 filename*= (e.g. filename*=UTF-8''report%2Fdata.html)
+    match_star = re.search(r"filename\*\s*=\s*([^']*)'[^']*'(.+?)(?:\s*;|$)", header)
+    if match_star:
+        from urllib.parse import unquote
+        return unquote(match_star.group(2).strip())
+
+    # Plain filename= (quoted or unquoted)
+    match_plain = re.search(r'filename\s*=\s*"?([^";]+)"?', header)
+    if match_plain:
+        return match_plain.group(1).strip()
+
+    return None
+
+
 def _is_html_attachment(url: str, response) -> bool:
     """Check if the attachment is genuinely an HTML file (not an error page).
 
-    Uses the URL path and Content-Disposition header as authoritative sources,
+    Uses the Content-Disposition header and URL path as authoritative sources,
     since anchor text can be a generic label like 'Download'.
     """
-    # Check Content-Disposition filename first (most authoritative)
     disposition = response.headers.get("content-disposition", "")
     if disposition:
-        match = re.search(r'filename[*]?=["\']?([^"\';]+)', disposition)
-        if match:
-            return match.group(1).strip().lower().endswith((".html", ".htm"))
+        name = _parse_content_disposition_filename(disposition)
+        if name:
+            return name.lower().endswith((".html", ".htm"))
 
-    # Fall back to the URL path
     url_filename = _filename_from_url(url).lower()
     return url_filename.endswith((".html", ".htm"))
 
