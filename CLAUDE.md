@@ -75,8 +75,8 @@ src/foi_cli/
 - CLI tests use Click's `CliRunner`
 - No live API tests in CI — manual smoke testing only
 
-## Git Remote
+## Repository
 
-- Remote uses `github-personal` SSH alias (not default `github.com`)
-- Push: `git push` (remote already configured)
-- Org: `KindTechUK/open-foi`
+- GitHub: `KindTechUK/open-foi`
+- License: MIT
+- Package name: `open-foi` (CLI command: `foi`)
