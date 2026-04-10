@@ -89,12 +89,11 @@ def fetch(ctx, url_titles, output_dir, attachments):
 
     Pass one or more request URL titles. Multiple titles use a shared browser session.
     """
-    from foi_cli.browser import fetch_request, fetch_batch
-
     config = ctx.obj["config"]
     output_dir = output_dir or config.fetch_output_dir
 
     try:
+        from foi_cli.browser import fetch_request, fetch_batch
         if len(url_titles) == 1:
             result = fetch_request(url_titles[0], output_dir=output_dir, download_attachments=attachments)
             write_output(format_json_raw(result))

@@ -82,3 +82,46 @@ def test_search_with_status_filter(mock_cache_cls, mock_client_cls):
     assert result.exit_code == 0
     call_args = mock_client.search_feed.call_args_list[0]
     assert "latest_status:successful" in call_args[0][0]
+
+
+@patch("foi_cli.cli.WDTKClient")
+@patch("foi_cli.cli.Cache")
+def test_fetch_missing_playwright(mock_cache_cls, mock_client_cls):
+    """foi fetch should show a clean error when playwright is not installed."""
+    mock_client_cls.return_value = MagicMock()
+    mock_cache_cls.return_value = MagicMock()
+
+    import sys
+    runner = CliRunner()
+    # Temporarily remove foi_cli.browser from modules so the import inside
+    # the fetch command raises ModuleNotFoundError
+    saved = sys.modules.pop("foi_cli.browser", None)
+    try:
+        with patch.dict("sys.modules", {"foi_cli.browser": None}):
+            result = runner.invoke(cli, ["fetch", "some_request"])
+    finally:
+        if saved is not None:
+            sys.modules["foi_cli.browser"] = saved
+    assert result.exit_code != 0
+    assert "Playwright is required" in result.output or "playwright" in result.output.lower()
+
+
+@patch("foi_cli.cli.WDTKClient")
+@patch("foi_cli.cli.Cache")
+def test_fetch_batch_partial_failure_exits_nonzero(mock_cache_cls, mock_client_cls):
+    """Batch fetch should output results AND exit non-zero when some requests fail."""
+    mock_client_cls.return_value = MagicMock()
+    mock_cache_cls.return_value = MagicMock()
+
+    partial_results = [
+        {"url_title": "good_request", "url": "http://...", "correspondence": [], "attachments_downloaded": []},
+        {"url_title": "bad_request", "error": "Timeout"},
+    ]
+    with patch("foi_cli.browser.fetch_batch", return_value=partial_results):
+        runner = CliRunner()
+        result = runner.invoke(cli, ["fetch", "good_request", "bad_request"])
+    assert result.exit_code != 0
+    # Output should still contain the JSON results
+    assert "good_request" in result.output
+    assert "bad_request" in result.output
+    assert "1/2 requests failed" in result.output

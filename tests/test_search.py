@@ -73,3 +73,20 @@ def test_aggregate_dedup_event_ids(sample_event):
     result = _aggregate_requests(events, "test", 2)
     assert result.total_events == 1
     assert len(result.requests[0].events) == 1
+
+
+def test_pagination_continues_past_short_page(sample_event, sample_event_response):
+    """Pagination should stop only on empty page, not on pages with < 25 events."""
+    from unittest.mock import MagicMock
+    from foi_cli.search import search_all
+
+    # Page 1: 10 events (short page), Page 2: 5 events, Page 3: empty
+    page1 = [sample_event] * 10
+    page2 = [sample_event_response] * 5
+    mock_client = MagicMock()
+    mock_client.search_feed = MagicMock(side_effect=[page1, page2, []])
+
+    result = search_all(mock_client, "test query", max_pages=20)
+    # Must have fetched 3 pages (page1, page2, empty page that stopped it)
+    assert mock_client.search_feed.call_count == 3
+    assert result.pages_fetched == 2

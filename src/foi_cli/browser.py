@@ -196,11 +196,14 @@ def _download_attachment(page, link: dict, attachments_dir: Path) -> Path:
     if not response.ok:
         raise RuntimeError(f"HTTP {response.status} downloading {link['url']}")
     content_type = response.headers.get("content-type", "")
-    if "text/html" in content_type:
-        raise RuntimeError(
-            f"Got HTML instead of attachment for {link['url']} "
-            f"(likely Cloudflare block or error page)"
-        )
+    filename_lower = link.get("filename", "").lower()
+    is_html_file = filename_lower.endswith((".html", ".htm"))
+    if "text/html" in content_type and not is_html_file:
+        body_snippet = response.body()[:512]
+        if b"<!DOCTYPE" in body_snippet or b"Just a moment" in body_snippet:
+            raise RuntimeError(
+                f"Got error/challenge page instead of attachment for {link['url']}"
+            )
     filename = _sanitize_filename(link["filename"])
     prefix = ""
     if link.get("message_id") and link.get("part"):
