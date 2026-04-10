@@ -109,7 +109,7 @@ def fetch(ctx, url_titles, output_dir, attachments):
     except ModuleNotFoundError:
         raise click.ClickException(
             "Playwright is required for `foi fetch`.\n"
-            "Install with: pip install foi-cli[browser]\n"
+            "Install with: pip install open-foi[browser]\n"
             "Then run: playwright install chromium"
         )
     except click.ClickException:

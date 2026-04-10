@@ -101,6 +101,7 @@ def test_fetch_missing_playwright(mock_cache_cls, mock_client_cls):
         result = runner.invoke(cli, ["fetch", "some_request"])
     assert result.exit_code != 0
     assert "Playwright is required" in result.output
+    assert "open-foi[browser]" in result.output
 
 
 @patch("foi_cli.cli.WDTKClient")
