@@ -9,3 +9,5 @@ build/
 cache.db
 foi-data/
 src/foi_cli/_version.py
+examples/*_requests.json
+examples/esea_data/

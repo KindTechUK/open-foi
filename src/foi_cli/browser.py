@@ -7,7 +7,7 @@ import json
 import logging
 import re
 import time
-from pathlib import Path
+from pathlib import Path, PurePosixPath
 
 logger = logging.getLogger(__name__)
 
@@ -28,6 +28,34 @@ Object.defineProperty(navigator, 'webdriver', {
     get: () => undefined,
 });
 """
+
+IMAGE_EXTENSIONS = frozenset({".png", ".jpg", ".jpeg", ".gif", ".bmp", ".svg"})
+
+
+def _filter_attachment_links(
+    links: list[dict],
+    extensions: set[str] | None = None,
+    skip_images: bool = False,
+) -> list[dict]:
+    """Filter attachment links by extension whitelist and/or image exclusion.
+
+    Args:
+        links: Raw attachment link dicts from _extract_all_attachment_links.
+        extensions: If provided, only include attachments whose extension (lowercase,
+                    without dot) is in this set. E.g. {"xlsx", "csv", "pdf"}.
+        skip_images: If True, exclude common image extensions.
+    """
+    filtered = []
+    for link in links:
+        ext = PurePosixPath(link["filename"]).suffix.lower()
+        ext_no_dot = ext.lstrip(".")
+
+        if skip_images and ext in IMAGE_EXTENSIONS:
+            continue
+        if extensions is not None and ext_no_dot not in extensions:
+            continue
+        filtered.append(link)
+    return filtered
 
 
 def _create_stealth_context(playwright):
@@ -227,28 +255,58 @@ def _is_html_attachment(url: str, response) -> bool:
 
 
 def _download_attachment(page, link: dict, attachments_dir: Path) -> Path:
-    """Download a single attachment using the browser context's cookies."""
-    response = page.request.get(link["url"])
-    if not response.ok:
-        raise RuntimeError(f"HTTP {response.status} downloading {link['url']}")
-    content_type = response.headers.get("content-type", "")
-    if "text/html" in content_type and not _is_html_attachment(link["url"], response):
-        raise RuntimeError(
-            f"Expected file attachment but got text/html for {link['url']}"
-        )
+    """Download a single attachment using the browser context's cookies.
+
+    Tries page.request.get() first (fast, direct HTTP). If Cloudflare blocks
+    with 403 or returns an HTML challenge page, falls back to opening a new
+    page in the same context and using expect_download + goto.
+    """
     filename = _sanitize_filename(link["filename"])
     prefix = ""
     if link.get("message_id") and link.get("part"):
         prefix = f"response_{link['message_id']}_{link['part']}_"
     filepath = attachments_dir / f"{prefix}{filename}"
-    filepath.write_bytes(response.body())
-    return filepath
+
+    # Primary: API request (fast)
+    try:
+        response = page.request.get(link["url"])
+        if response.ok:
+            content_type = response.headers.get("content-type", "")
+            if "text/html" in content_type and not _is_html_attachment(link["url"], response):
+                logger.info("Got HTML instead of file, trying browser download: %s", link["url"])
+            else:
+                filepath.write_bytes(response.body())
+                return filepath
+        else:
+            logger.info("HTTP %d, trying browser download: %s", response.status, link["url"])
+    except Exception as e:
+        logger.info("API request failed (%s), trying browser download: %s", e, link["url"])
+
+    # Fallback: browser navigation download (solves Cloudflare JS challenges)
+    dl_page = page.context.new_page()
+    try:
+        with dl_page.expect_download(timeout=30000) as download_info:
+            try:
+                dl_page.goto(link["url"], timeout=30000)
+            except Exception:
+                pass  # "Download is starting" error is expected
+        download = download_info.value
+        download.save_as(str(filepath))
+        return filepath
+    except Exception as e:
+        raise RuntimeError(
+            f"Both API request and browser download failed for {link['url']}: {e}"
+        )
+    finally:
+        dl_page.close()
 
 
 def fetch_request(
     url_title: str,
     output_dir: str = "./foi-data",
     download_attachments: bool = True,
+    extensions: set[str] | None = None,
+    skip_images: bool = False,
     *,
     _context=None,
     _rate_limit: float = 0.0,
@@ -259,6 +317,8 @@ def fetch_request(
         url_title: URL slug of the request
         output_dir: Base directory for output
         download_attachments: Whether to download attachment files
+        extensions: If provided, only download these extensions (no dot, lowercase).
+        skip_images: If True, skip common image attachments.
         _context: Pre-existing BrowserContext for batch reuse
         _rate_limit: Seconds to sleep before navigation (batch rate limiting)
     """
@@ -285,6 +345,10 @@ def fetch_request(
             _prepare_page(page, url_title)
             correspondence = _extract_correspondence(page)
             attachment_links = _extract_all_attachment_links(page)
+            if extensions is not None or skip_images:
+                attachment_links = _filter_attachment_links(
+                    attachment_links, extensions=extensions, skip_images=skip_images
+                )
 
             downloaded = []
             if download_attachments and attachment_links:
@@ -322,6 +386,8 @@ def fetch_batch(
     url_titles: list[str],
     output_dir: str = "./foi-data",
     download_attachments: bool = True,
+    extensions: set[str] | None = None,
+    skip_images: bool = False,
     rate_limit: float = 2.0,
 ) -> list[dict]:
     """Fetch multiple FOI requests using a shared browser session."""
@@ -337,6 +403,7 @@ def fetch_batch(
                 try:
                     result = fetch_request(
                         url_title, output_dir, download_attachments,
+                        extensions=extensions, skip_images=skip_images,
                         _context=context, _rate_limit=delay,
                     )
                     results.append(result)
@@ -346,3 +413,39 @@ def fetch_batch(
         finally:
             browser.close()
     return results
+
+
+def list_attachments(
+    url_title: str,
+    extensions: set[str] | None = None,
+    skip_images: bool = False,
+) -> dict:
+    """List attachments for a single FOI request without downloading.
+
+    Args:
+        url_title: URL slug of the request.
+        extensions: If provided, only include these extensions (no dot, lowercase).
+        skip_images: If True, exclude common image extensions.
+    """
+    from playwright.sync_api import sync_playwright
+
+    with sync_playwright() as pw:
+        browser, context = _create_stealth_context(pw)
+        try:
+            page = context.new_page()
+            try:
+                _prepare_page(page, url_title)
+                all_links = _extract_all_attachment_links(page)
+                filtered = _filter_attachment_links(
+                    all_links, extensions=extensions, skip_images=skip_images
+                )
+                return {
+                    "url_title": url_title,
+                    "url": f"{BASE_URL}/request/{url_title}",
+                    "total_attachments": len(filtered),
+                    "attachments": filtered,
+                }
+            finally:
+                page.close()
+        finally:
+            browser.close()

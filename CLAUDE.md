@@ -18,6 +18,9 @@ ruff check src/ tests/
 # Run
 foi search "ESEA hate crimes"
 foi fetch east_and_southeast_asian_esea_ha_63
+foi fetch east_and_southeast_asian_esea_ha_63 --ext xlsx,csv --skip-images
+foi attachments east_and_southeast_asian_esea_ha_63
+foi attachments east_and_southeast_asian_esea_ha_63 --skip-images --format summary
 foi authorities --search police
 foi cache stats
 ```
@@ -40,7 +43,7 @@ Two-tier design:
 
 ```
 src/foi_cli/
-├── cli.py          # Click commands (search, fetch, authorities, cache)
+├── cli.py          # Click commands (search, fetch, attachments, authorities, cache)
 ├── client.py       # WDTKClient — httpx, rate limiting, retries, cache integration
 ├── search.py       # Query builder + paginated event aggregation + time deltas
 ├── models.py       # Pydantic v2: API models (FeedEvent, etc.) + output models (SearchResult, etc.)
@@ -60,6 +63,7 @@ src/foi_cli/
 ## Gotchas
 
 - **Cloudflare blocks all `/request/` paths** for programmatic access — only `/feed/` endpoints work without a browser
+- **Cloudflare blocks `page.request.get()` for attachment downloads** — `_download_attachment()` falls back to browser navigation (`expect_download` + `goto`) when the API request gets 403
 - **Stealth args required**: Playwright needs `--disable-blink-features=AutomationControlled` + `navigator.webdriver` removal. Config lives in `_create_stealth_context()`
 - **`?unfold=1`** must be appended to request URLs or quoted sections are hidden
 - **`cookie_passthrough=1`** must be on attachment download URLs
@@ -70,7 +74,7 @@ src/foi_cli/
 
 ## Testing
 
-- 34 tests, all offline (mocked HTTP via `respx`, mocked Playwright)
+- 47 tests, all offline (mocked HTTP via `respx`, mocked Playwright)
 - Fixtures in `tests/conftest.py` with real ESEA query event data
 - CLI tests use Click's `CliRunner`
 - No live API tests in CI — manual smoke testing only
