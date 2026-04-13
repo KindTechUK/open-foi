@@ -247,6 +247,33 @@ def test_parse_message_block_falls_back_for_generic_label():
     assert msg["attachments"][0]["filename"] == "hate%20crime%20data.xlsx"
 
 
+def test_parse_message_block_falls_back_for_empty_text():
+    el = _mock_correspondence_el("incoming-100", "incoming", [
+        _mock_anchor("/request/slug/response/100/attach/3/image001.png", ""),
+    ])
+    msg = _parse_message_block(el, "incoming")
+    assert msg["attachments"][0]["filename"] == "image001.png"
+
+
+def test_parse_message_block_falls_back_for_text_without_extension():
+    el = _mock_correspondence_el("incoming-100", "incoming", [
+        _mock_anchor("/request/slug/response/100/attach/4/budget%202025.csv", "View attachment"),
+    ])
+    msg = _parse_message_block(el, "incoming")
+    assert msg["attachments"][0]["filename"] == "budget%202025.csv"
+
+
+def test_parse_message_block_handles_url_with_query_params():
+    el = _mock_correspondence_el("incoming-100", "incoming", [
+        _mock_anchor(
+            "/request/slug/response/100/attach/2/report.pdf?cookie_passthrough=1",
+            "Download",
+        ),
+    ])
+    msg = _parse_message_block(el, "incoming")
+    assert msg["attachments"][0]["filename"] == "report.pdf"
+
+
 def test_parse_message_block_skips_html_attach_links():
     el = _mock_correspondence_el("incoming-100", "incoming", [
         _mock_anchor("/request/slug/response/100/attach/html/2/view.html", "View as HTML"),
