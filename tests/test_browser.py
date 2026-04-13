@@ -7,9 +7,11 @@ import pytest
 
 from foi_cli.browser import (
     _download_attachment,
+    _extract_all_attachment_links,
     _filter_attachment_links,
     _is_html_attachment,
     _parse_content_disposition_filename,
+    _parse_message_block,
 )
 
 
@@ -132,6 +134,127 @@ def test_filter_file_without_extension():
     assert len(result) == 0
     result_no_filter = _filter_attachment_links(links, skip_images=True)
     assert len(result_no_filter) == 1
+
+
+# --- _extract_all_attachment_links filename resolution ---
+
+
+def _mock_anchor(href, text):
+    """Create a mock <a> element with href and inner_text."""
+    a = MagicMock()
+    a.get_attribute.return_value = href
+    a.inner_text.return_value = text
+    return a
+
+
+def _mock_page_with_anchors(anchors):
+    """Create a mock page whose query_selector_all returns the given anchors."""
+    page = MagicMock()
+    page.query_selector_all.return_value = anchors
+    return page
+
+
+def test_extract_uses_anchor_text_when_it_has_extension():
+    """Anchor text with a file extension should be used as the filename."""
+    page = _mock_page_with_anchors([
+        _mock_anchor("/request/slug/response/100/attach/2/data%20file.xlsx", "FOI Response Data.xlsx"),
+    ])
+    links = _extract_all_attachment_links(page)
+    assert len(links) == 1
+    assert links[0]["filename"] == "FOI Response Data.xlsx"
+
+
+def test_extract_falls_back_to_url_for_generic_label():
+    """Generic anchor text like 'Download' should fall back to URL-derived filename."""
+    page = _mock_page_with_anchors([
+        _mock_anchor("/request/slug/response/100/attach/2/report%20data.xlsx", "Download"),
+    ])
+    links = _extract_all_attachment_links(page)
+    assert len(links) == 1
+    assert links[0]["filename"] == "report%20data.xlsx"
+
+
+def test_extract_falls_back_to_url_for_empty_text():
+    """Empty anchor text should fall back to URL-derived filename."""
+    page = _mock_page_with_anchors([
+        _mock_anchor("/request/slug/response/100/attach/3/image001.png", ""),
+    ])
+    links = _extract_all_attachment_links(page)
+    assert len(links) == 1
+    assert links[0]["filename"] == "image001.png"
+
+
+def test_extract_falls_back_for_text_without_extension():
+    """Anchor text without any dot-extension should fall back to URL filename."""
+    page = _mock_page_with_anchors([
+        _mock_anchor("/request/slug/response/100/attach/4/budget%202025.csv", "View attachment"),
+    ])
+    links = _extract_all_attachment_links(page)
+    assert len(links) == 1
+    assert links[0]["filename"] == "budget%202025.csv"
+
+
+def test_extract_skips_html_view_links():
+    """Links to /attach/html/ should be excluded."""
+    page = _mock_page_with_anchors([
+        _mock_anchor("/request/slug/response/100/attach/html/2/report.html", "View as HTML"),
+        _mock_anchor("/request/slug/response/100/attach/2/report.pdf", "report.pdf"),
+    ])
+    links = _extract_all_attachment_links(page)
+    assert len(links) == 1
+    assert links[0]["filename"] == "report.pdf"
+
+
+def test_extract_deduplicates_by_base_url():
+    """Same base URL with different query params should be deduplicated."""
+    page = _mock_page_with_anchors([
+        _mock_anchor("/request/slug/response/100/attach/2/data.xlsx?cookie_passthrough=1", "data.xlsx"),
+        _mock_anchor("/request/slug/response/100/attach/2/data.xlsx", "data.xlsx"),
+    ])
+    links = _extract_all_attachment_links(page)
+    assert len(links) == 1
+
+
+# --- _parse_message_block filename resolution ---
+
+
+def _mock_correspondence_el(el_id, direction, attach_anchors):
+    """Create a mock correspondence div with attachment links."""
+    el = MagicMock()
+    el.get_attribute.return_value = el_id
+    el.query_selector.side_effect = lambda sel: {
+        ".correspondence__header__author": None,
+        ".correspondence__header__date": None,
+        ".correspondence_text": None,
+    }.get(sel)
+    el.query_selector_all.return_value = attach_anchors
+    return el
+
+
+def test_parse_message_block_uses_anchor_text_with_extension():
+    el = _mock_correspondence_el("incoming-100", "incoming", [
+        _mock_anchor("/request/slug/response/100/attach/2/file.pdf", "FOI Response.pdf"),
+    ])
+    msg = _parse_message_block(el, "incoming")
+    assert msg["attachments"][0]["filename"] == "FOI Response.pdf"
+
+
+def test_parse_message_block_falls_back_for_generic_label():
+    el = _mock_correspondence_el("incoming-100", "incoming", [
+        _mock_anchor("/request/slug/response/100/attach/2/hate%20crime%20data.xlsx", "Download"),
+    ])
+    msg = _parse_message_block(el, "incoming")
+    assert msg["attachments"][0]["filename"] == "hate%20crime%20data.xlsx"
+
+
+def test_parse_message_block_skips_html_attach_links():
+    el = _mock_correspondence_el("incoming-100", "incoming", [
+        _mock_anchor("/request/slug/response/100/attach/html/2/view.html", "View as HTML"),
+        _mock_anchor("/request/slug/response/100/attach/2/data.csv", "data.csv"),
+    ])
+    msg = _parse_message_block(el, "incoming")
+    assert len(msg["attachments"]) == 1
+    assert msg["attachments"][0]["filename"] == "data.csv"
 
 
 # --- _download_attachment ---
