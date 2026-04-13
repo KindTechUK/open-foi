@@ -142,10 +142,15 @@ def _parse_message_block(el, direction: str) -> dict | None:
                 sep = "&" if "?" in full_url else "?"
                 full_url += f"{sep}cookie_passthrough=1"
             text = a.inner_text().strip()
+            url_filename = _filename_from_url(href)
+            if text and PurePosixPath(text).suffix:
+                filename = text
+            else:
+                filename = url_filename
             msg_id_from_url, part = _parse_attachment_url(full_url)
             attachments.append({
                 "url": full_url,
-                "filename": text or _filename_from_url(href),
+                "filename": filename,
                 "message_id": msg_id_from_url,
                 "part": part,
             })
@@ -195,10 +200,17 @@ def _extract_all_attachment_links(page) -> list[dict]:
             continue
         seen.add(base)
         text = a.inner_text().strip()
+        url_filename = _filename_from_url(href)
+        # Prefer anchor text if it has a file extension; otherwise use URL-derived
+        # filename which is always reliable. Anchor text can be generic ("Download").
+        if text and PurePosixPath(text).suffix:
+            filename = text
+        else:
+            filename = url_filename
         msg_id, part = _parse_attachment_url(full_url)
         links.append({
             "url": full_url,
-            "filename": text or _filename_from_url(href),
+            "filename": filename,
             "message_id": msg_id,
             "part": part,
         })

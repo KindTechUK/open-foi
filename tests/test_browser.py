@@ -1,6 +1,12 @@
 """Tests for browser module helpers."""
 
+from contextlib import contextmanager
+from unittest.mock import MagicMock
+
+import pytest
+
 from foi_cli.browser import (
+    _download_attachment,
     _filter_attachment_links,
     _is_html_attachment,
     _parse_content_disposition_filename,
@@ -126,3 +132,133 @@ def test_filter_file_without_extension():
     assert len(result) == 0
     result_no_filter = _filter_attachment_links(links, skip_images=True)
     assert len(result_no_filter) == 1
+
+
+# --- _download_attachment ---
+
+
+def _make_link(filename="data.xlsx", url="https://example.com/attach/2/data.xlsx"):
+    return {"filename": filename, "url": url, "message_id": "100", "part": "2"}
+
+
+def _mock_api_response(ok=True, status=200, content_type="application/octet-stream", body=b"filedata"):
+    resp = MagicMock()
+    resp.ok = ok
+    resp.status = status
+    resp.headers = {"content-type": content_type}
+    resp.body.return_value = body
+    return resp
+
+
+def test_download_attachment_api_success(tmp_path):
+    """Primary path: page.request.get() succeeds, file is written."""
+    page = MagicMock()
+    page.request.get.return_value = _mock_api_response(ok=True, body=b"spreadsheet data")
+
+    link = _make_link()
+    result = _download_attachment(page, link, tmp_path)
+
+    assert result.exists()
+    assert result.read_bytes() == b"spreadsheet data"
+    assert "data.xlsx" in result.name
+    page.context.new_page.assert_not_called()
+
+
+def test_download_attachment_403_falls_back_to_browser(tmp_path):
+    """API returns 403, fallback opens new page and uses expect_download."""
+    page = MagicMock()
+    page.request.get.return_value = _mock_api_response(ok=False, status=403)
+
+    # Mock the fallback page and download
+    dl_page = MagicMock()
+    page.context.new_page.return_value = dl_page
+    mock_download = MagicMock()
+
+    @contextmanager
+    def fake_expect_download(timeout=30000):
+        holder = MagicMock()
+        holder.value = mock_download
+        yield holder
+
+    dl_page.expect_download = fake_expect_download
+
+    link = _make_link()
+    filepath = _download_attachment(page, link, tmp_path)
+
+    page.context.new_page.assert_called_once()
+    dl_page.goto.assert_called_once_with(link["url"], timeout=30000)
+    mock_download.save_as.assert_called_once_with(str(filepath))
+    dl_page.close.assert_called_once()
+
+
+def test_download_attachment_html_challenge_falls_back(tmp_path):
+    """API returns 200 but with HTML challenge page (not a real HTML attachment)."""
+    page = MagicMock()
+    page.request.get.return_value = _mock_api_response(
+        ok=True, content_type="text/html", body=b"<html>Just a moment...</html>"
+    )
+
+    dl_page = MagicMock()
+    page.context.new_page.return_value = dl_page
+    mock_download = MagicMock()
+
+    @contextmanager
+    def fake_expect_download(timeout=30000):
+        holder = MagicMock()
+        holder.value = mock_download
+        yield holder
+
+    dl_page.expect_download = fake_expect_download
+
+    link = _make_link()
+    _download_attachment(page, link, tmp_path)
+
+    page.context.new_page.assert_called_once()
+    mock_download.save_as.assert_called_once()
+    dl_page.close.assert_called_once()
+
+
+def test_download_attachment_both_fail_raises(tmp_path):
+    """Both API request and browser fallback fail — RuntimeError raised."""
+    page = MagicMock()
+    page.request.get.return_value = _mock_api_response(ok=False, status=403)
+
+    dl_page = MagicMock()
+    page.context.new_page.return_value = dl_page
+
+    @contextmanager
+    def fake_expect_download(timeout=30000):
+        raise TimeoutError("Download timed out")
+        yield  # unreachable, needed for generator syntax
+
+    dl_page.expect_download = fake_expect_download
+
+    link = _make_link()
+    with pytest.raises(RuntimeError, match="Both API request and browser download failed"):
+        _download_attachment(page, link, tmp_path)
+
+    dl_page.close.assert_called_once()
+
+
+def test_download_attachment_api_exception_falls_back(tmp_path):
+    """API request raises an exception, fallback is attempted."""
+    page = MagicMock()
+    page.request.get.side_effect = ConnectionError("network down")
+
+    dl_page = MagicMock()
+    page.context.new_page.return_value = dl_page
+    mock_download = MagicMock()
+
+    @contextmanager
+    def fake_expect_download(timeout=30000):
+        holder = MagicMock()
+        holder.value = mock_download
+        yield holder
+
+    dl_page.expect_download = fake_expect_download
+
+    link = _make_link()
+    _download_attachment(page, link, tmp_path)
+
+    page.context.new_page.assert_called_once()
+    mock_download.save_as.assert_called_once()
