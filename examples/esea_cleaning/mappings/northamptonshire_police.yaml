@@ -1,0 +1,72 @@
+force_id: northamptonshire_police
+display_name: Northamptonshire Police
+
+# Wave-3 (2023) PDF has the richest structure — year × ethnicity × month.
+# Single table on page 1 with 35 rows, 39 cols. Year-marker rows ("2017",
+# "2018", "2019", "2020", "2021", "2022", "2023") followed by 6 ethnicity
+# rows (A1, A2, A3, A9, M3, O1). Values are in cols 3, 6, 9, ..., 36 (every
+# 3rd col starting from 3) — so we rename those positions to month names.
+source_file: "2023/FOI 8547 23 East and Southeast Asian hate crimes incidents.pdf"
+
+extraction:
+  page: 1
+  table_index: 0
+  header: null
+  rename_columns:
+    1: "section"
+    3: "Jan"
+    6: "Feb"
+    9: "Mar"
+    12: "Apr"
+    15: "May"
+    18: "Jun"
+    21: "Jul"
+    24: "Aug"
+    27: "Sep"
+    30: "Oct"
+    33: "Nov"
+    36: "Dec"
+  shape: year_sections_ethnicity_rows
+  columns:
+    section: "section"
+  month_columns:
+    - "Jan"
+    - "Feb"
+    - "Mar"
+    - "Apr"
+    - "May"
+    - "Jun"
+    - "Jul"
+    - "Aug"
+    - "Sep"
+    - "Oct"
+    - "Nov"
+    - "Dec"
+  ethnicity_labels:
+    - "A1"
+    - "A2"
+    - "A3"
+    - "A9"
+    - "M3"
+    - "O1"
+  drop_sections:
+    - "Jan"
+    - "Feb"
+    - "Mar"
+    - "Apr"
+    - "May"
+    - "Jun"
+    - "Jul"
+    - "Aug"
+    - "Sep"
+    - "Oct"
+    - "Nov"
+    - "Dec"
+
+mapping:
+  "A1": "Asian - Indian"
+  "A2": "Asian - Pakistani"
+  "A3": "Asian - Bangladeshi"
+  "A9": "Asian - Other"
+  "M3": "Mixed - White and Asian"
+  "O1": "Asian - Chinese"

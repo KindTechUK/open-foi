@@ -1,0 +1,24 @@
+force_id: cleveland_police
+display_name: Cleveland Police
+
+# Wave-2 (2022) XLSX. Two files supplied:
+#   FOI 13902 22.xlsx        — self-defined ethnicity (A9 + O1) ← we use this
+#   13902 attachment.xlsx    — officer-observed (IC4 + IC5), same period
+# Self-defined matches the ONS/census reporting basis used for the other forces.
+# Shape: year_sections (year-row markers, then 12 month rows per year).
+source_file: "2022/FOI 13902 22.xlsx"
+
+extraction:
+  header: 3
+  shape: year_sections
+  columns:
+    section: "Row Labels"
+  ethnicity_columns:
+    - "A9. Any other Asian background"
+    - "O1. Chinese"
+  drop_sections:
+    - "Grand Total"
+
+mapping:
+  "A9. Any other Asian background": "Asian - Other"
+  "O1. Chinese": "Asian - Chinese"

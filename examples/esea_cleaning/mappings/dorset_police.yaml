@@ -1,0 +1,57 @@
+force_id: dorset_police
+display_name: Dorset Police
+
+source_file: "RECORD 1.XLSX.xlsx"
+
+# Dorset's "Data" sheet stacks two tables vertically:
+#   rows 0–14: Hate Crimes - Racial Only (total counts per month × year; no ethnicity breakdown)
+#   rows 16–31: Hate Crime - Victims (month-section × ethnicity-detail × year cols) ← USE THIS
+# We point pandas at the header row of the second table (header=18) so cols are
+# "Month / Self Defined Race" + 2020/2021/.../Grand Total.
+#
+# The month-section shape:
+#   row 0: "January" (section header with monthly totals)
+#   rows 1–12: ethnicity rows with counts per year
+#   repeats for February ... December
+#   final: "Grand Total" row to skip
+# We stop at nrows=144 which is just before the Non-Crime table starts interfering.
+extraction:
+  sheet: "Data"
+  header: 18
+  shape: month_sections
+  columns:
+    section: "Month / Self Defined Race"
+  year_columns:
+    2020: 2020
+    2021: 2021
+    2022: 2022
+    2023: 2023
+    2024: 2024
+    "2025 (up until 02/06/2025 ": 2025
+  # "(blank)" represents unrecorded ethnicity (790 counts across 2020-2025).
+  # Folded into "Not stated / Unknown" via the mapping below for consistency
+  # with how GMP's null ethnicity rows are handled.
+  drop_sections:
+    - "Grand Total"
+
+mapping:
+  "(blank)": "Not stated / Unknown"
+  "A1. Asian Indian inc Asian British": "Asian - Indian"
+  "A2. Asian Pakistani inc Asian British": "Asian - Pakistani"
+  "A3. Asian Bangladeshi inc Asian British": "Asian - Bangladeshi"
+  "A4. Asian Chinese inc Asian British": "Asian - Chinese"
+  "A9. Any other Asian background": "Asian - Other"
+  "B1. Black Caribbean inc Black British": "Black - Caribbean"
+  "B2. Black African inc Black British": "Black - African"
+  "B9. Any other Black background": "Black - Other"
+  "M1. Mixed White & Black Caribbean": "Mixed - White and Black Caribbean"
+  "M2. Mixed White & Black African": "Mixed - White and Black African"
+  "M3. Mixed White & Asian": "Mixed - White and Asian"
+  "M9. Any other mixed": "Mixed - Other"
+  "NS. Not stated": "Not stated / Unknown"
+  "O2. Arab": "Other - Arab"
+  "O9. Any other": "Other - Any other ethnic group"
+  "W1. White British": "White - English/Welsh/Scottish/Northern Irish/British"
+  "W2. White Irish": "White - Irish"
+  "W3. White Gypsy or Irish Traveller": "White - Gypsy or Irish Traveller"
+  "W9. Any other white background": "White - Other"

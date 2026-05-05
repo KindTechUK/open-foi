@@ -1,0 +1,45 @@
+force_id: suffolk_constabulary
+display_name: Suffolk Constabulary
+
+source_file: "FOI RESPONSE 2025 02309.pdf"
+
+# Suffolk shares the same PDF template as Norfolk (same Constabulary group
+# co-produced the response). Data spans pages 4, 5, 6, 7 (table 0 each) for
+# racial hate crime — same "year-section → 12 month rows → year-section..."
+# layout with 8 ethnicity columns.
+extraction:
+  pdf_pages: [4, 5, 6, 7]
+  header: null
+  pdf_normalize_columns: false
+  rename_columns:
+    0: "section"
+    1: "blank"
+    2: "Asian"
+    3: "Black"
+    4: "Chinese, Japanese or South East Asian"
+    5: "Middle Eastern"
+    6: "Unknown"
+    7: "White - North European"
+    8: "White - South European"
+  shape: year_sections
+  columns:
+    section: "section"
+  ethnicity_columns:
+    - "blank"
+    - "Asian"
+    - "Black"
+    - "Chinese, Japanese or South East Asian"
+    - "Middle Eastern"
+    - "Unknown"
+    - "White - North European"
+    - "White - South European"
+
+mapping:
+  "blank": "Not stated / Unknown"
+  "Asian": "Asian - Other"
+  "Black": "Black - Other"
+  "Chinese, Japanese or South East Asian": "Asian - Other"
+  "Middle Eastern": "Other - Arab"
+  "Unknown": "Not stated / Unknown"
+  "White - North European": "White - Other"
+  "White - South European": "White - Other"

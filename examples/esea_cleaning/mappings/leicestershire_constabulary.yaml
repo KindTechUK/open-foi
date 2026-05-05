@@ -1,0 +1,45 @@
+force_id: leicestershire_constabulary
+display_name: Leicestershire Constabulary
+
+source_file: "01FOI25000396A.xlsx"
+
+# Leicestershire submits a single workbook with nested year/month rows:
+#   row 0 (after header promotion): "2020" (annual total)
+#   rows 1–12: monthly data for 2020 (dates like "2020-01-01 ...")
+#   row 13: "2021" (annual total)
+#   ... etc
+# We keep only month rows by letting _parse_date_value reject the annual
+# aggregates (years and "Grand Total") — they drop cleanly with a warning.
+# Using header=1 so the ethnicity labels (on Excel row 1) become column names.
+extraction:
+  sheet: "Response Summary Table"
+  header: 1
+  # Stop at the first Grand Total row (row 71, Excel-indexed via header=1).
+  # After header=1 pandas indexing, row 70 is the last month row of 2025.
+  nrows: 71
+  # Drop the annual-summary rows. Excel stores "2020" in year cells as
+  # datetime(2020,1,1) so they collide with Jan-2020 month rows — dropping
+  # by explicit index is safer than heuristic detection.
+  drop_row_indices: [0, 13, 26, 39, 52, 65]
+  shape: wide_ethnicity
+  columns:
+    date: "Leicestershire Police"
+  ethnicity_columns:
+    - "A1. Asian Indian"
+    - "A2. Asian Pakistani"
+    - "A9. Other Asian background"
+    - "M3. White & Asian"
+    - "NS. Not stated"
+    - "O1. Chinese"
+    - "O9. Other ethnic group"
+    - "W9. Other white background"
+
+mapping:
+  "A1. Asian Indian": "Asian - Indian"
+  "A2. Asian Pakistani": "Asian - Pakistani"
+  "A9. Other Asian background": "Asian - Other"
+  "M3. White & Asian": "Mixed - White and Asian"
+  "NS. Not stated": "Not stated / Unknown"
+  "O1. Chinese": "Asian - Chinese"
+  "O9. Other ethnic group": "Other - Any other ethnic group"
+  "W9. Other white background": "White - Other"

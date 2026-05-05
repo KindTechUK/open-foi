@@ -1,0 +1,57 @@
+force_id: british_transport_police
+display_name: British Transport Police
+
+# Wave-2 (2022) XLSX. Clean wide_ethnicity — one row per (year, month) with
+# 19 self-defined ethnicity columns. Date format "Mmm<yyyy>" (e.g. "Jan2019")
+# — parses fine via pandas.to_datetime without a separator.
+# Covers 01/01/2019–30/04/2022.
+source_file: "2022/FOI RESPONSE 01 FOI 22 1195.xlsx"
+
+extraction:
+  sheet: "Data"
+  header: 2
+  nrows: 40
+  shape: wide_ethnicity
+  columns:
+    date: "Recorded Date Month Year"
+  ethnicity_columns:
+    - "A1. Asian - Indian"
+    - "A2. Asian - Pakistani"
+    - "A3. Asian - Bangladeshi"
+    - "A9. Any other Asian background"
+    - "B1. Black Caribbean"
+    - "B2. Black African"
+    - "B9. Any other Black background"
+    - "I1. Gypsy or Irish Traveller"
+    - "M1. White & Black Caribbean"
+    - "M2. White & Black African"
+    - "M3. White & Asian"
+    - "M9. Any other mixed background"
+    - "NS. Not stated"
+    - "O1. Chinese"
+    - "O9. Any other ethnic group"
+    - "W1. White British"
+    - "W2. White Irish"
+    - "W9. Any other white background"
+    - "Not Recorded"
+
+mapping:
+  "A1. Asian - Indian": "Asian - Indian"
+  "A2. Asian - Pakistani": "Asian - Pakistani"
+  "A3. Asian - Bangladeshi": "Asian - Bangladeshi"
+  "A9. Any other Asian background": "Asian - Other"
+  "B1. Black Caribbean": "Black - Caribbean"
+  "B2. Black African": "Black - African"
+  "B9. Any other Black background": "Black - Other"
+  "I1. Gypsy or Irish Traveller": "White - Gypsy or Irish Traveller"
+  "M1. White & Black Caribbean": "Mixed - White and Black Caribbean"
+  "M2. White & Black African": "Mixed - White and Black African"
+  "M3. White & Asian": "Mixed - White and Asian"
+  "M9. Any other mixed background": "Mixed - Other"
+  "NS. Not stated": "Not stated / Unknown"
+  "O1. Chinese": "Asian - Chinese"
+  "O9. Any other ethnic group": "Other - Any other ethnic group"
+  "W1. White British": "White - English/Welsh/Scottish/Northern Irish/British"
+  "W2. White Irish": "White - Irish"
+  "W9. Any other white background": "White - Other"
+  "Not Recorded": "Not stated / Unknown"

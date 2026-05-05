@@ -1,0 +1,34 @@
+force_id: gwent_police
+display_name: Gwent Police
+
+# Wave-2 (2022) DOCX. Two tables: Table 0 is officer-observed ethnicity
+# (coarse 2-col), Table 1 is self-defined ethnicity (6 cols) — we use
+# Table 1 for ONS-style reporting.
+# Month labels use "<Month> <Year>" e.g. "August 2021" — parses fine via
+# pandas.to_datetime.
+# Covers August 2021 – May 2022 (10 months).
+source_file: "2022/Disclosure.docx"
+
+extraction:
+  table_index: 1
+  header: 1
+  shape: wide_ethnicity
+  columns:
+    date: "Month"
+  ethnicity_columns:
+    - "Asian - Indian"
+    - "Pakistani"
+    - "Asian - Bangladeshi"
+    - "Any Other Asian Background"
+    - "White and Asian"
+    - "Chinese"
+  drop_columns:
+    - "Grand Total"
+
+mapping:
+  "Asian - Indian": "Asian - Indian"
+  "Pakistani": "Asian - Pakistani"
+  "Asian - Bangladeshi": "Asian - Bangladeshi"
+  "Any Other Asian Background": "Asian - Other"
+  "White and Asian": "Mixed - White and Asian"
+  "Chinese": "Asian - Chinese"

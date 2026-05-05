@@ -1,0 +1,33 @@
+force_id: police_service_of_northern_ireland
+display_name: Police Service of Northern Ireland
+
+source_file: "14857 ESEA Hate Crimes Incidents Data 20 25.csv"
+
+# PSNI supplied annual totals (2020–2024) plus a partial "Jan - Mar 2025"
+# column. No monthly breakdown. Emitted with granularity="annual" so
+# downstream queries can opt in or filter out.
+# "Jan - Mar 2025" is a partial-year column; keeping as year=2025 with a
+# partial_data flag captured in the audit warnings.
+extraction:
+  shape: wide_years
+  columns:
+    ethnicity: "Ethnicity"
+  year_columns:
+    "2020": 2020
+    "2021": 2021
+    "2022": 2022
+    "2023": 2023
+    "2024": 2024
+    "Jan - Mar 2025": 2025
+  skip_ethnicities:
+    - "Total"
+
+# PSNI uses descriptive labels including historic classifications.
+mapping:
+  "Indian": "Asian - Indian"
+  "Pakistani": "Asian - Pakistani"
+  "Bangladeshi": "Asian - Bangladeshi"
+  "Chinese": "Asian - Chinese"
+  "Other Asian": "Asian - Other"
+  "Asian (historic classification)": "Asian - Other"
+  "Chinese,Japanese,SE Asian (historic classification)": "Asian - Other"

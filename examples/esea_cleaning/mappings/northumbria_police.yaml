@@ -1,0 +1,27 @@
+force_id: northumbria_police
+display_name: Northumbria Police
+
+# Wave-2 (2022) PDF, single page, single table. Data covers Jan 2019 – Feb 2022
+# (~39 months) with counts aggregated quarterly — pdfplumber extracts them
+# onto the Jan/Apr/Jul/Oct row of each quarter. 2 ethnicity columns: Chinese
+# (O1) and Any Other Ethnic Group (O9).
+# Year col has values on Jan rows only; we ffill to propagate within each year.
+source_file: "2022/FOI 671 22 Hate Crimes.pdf"
+
+extraction:
+  page: 0
+  table_index: 0
+  header: 1
+  ffill_columns:
+    - "Year"
+  shape: wide_ethnicity
+  columns:
+    year: "Year"
+    month: "Month"
+  ethnicity_columns:
+    - "Chinese (O1)"
+    - "Any Other Ethnic Group (O9)"
+
+mapping:
+  "Chinese (O1)": "Asian - Chinese"
+  "Any Other Ethnic Group (O9)": "Other - Any other ethnic group"

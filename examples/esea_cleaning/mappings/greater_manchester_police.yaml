@@ -1,0 +1,39 @@
+force_id: greater_manchester_police
+display_name: Greater Manchester Police
+
+source_file: "FOI.25.014831.T RESPONSE DATA.xlsx"
+
+# 41,397 rows, one per crime. Columns already split year/month with month as
+# a full-text English name ("January", "February" ...).
+# ~10.5k rows have null ethnicity — relabelled "Not recorded" per FOI convention.
+extraction:
+  sheet: "Response"
+  shape: event_log
+  columns:
+    ethnicity: "Crime Person Self Declared Ethnicity at Time of Crime : Ethnicity Description"
+    year: "Crime Created on Date : Calendar Year "
+    month: "Crime Created on Date : Month"
+  null_ethnicity_label: "Not recorded"
+
+mapping:
+  "Asian - Indian": "Asian - Indian"
+  "Asian - Pakistani": "Asian - Pakistani"
+  "Asian - Bangladeshi": "Asian - Bangladeshi"
+  "Asian - Chinese": "Asian - Chinese"
+  "Asian - Any Other Asian Background": "Asian - Other"
+  "Black - African": "Black - African"
+  "Black - Caribbean": "Black - Caribbean"
+  "Black - Any Other Black Background": "Black - Other"
+  "Mixed - White and Asian": "Mixed - White and Asian"
+  "Mixed - White and Black African": "Mixed - White and Black African"
+  "Mixed - White and Black Caribbean": "Mixed - White and Black Caribbean"
+  "Mixed - Any Other Mixed Background": "Mixed - Other"
+  "White - British": "White - English/Welsh/Scottish/Northern Irish/British"
+  "White - Irish": "White - Irish"
+  "White - Any Other White Background": "White - Other"
+  "Other - Arab": "Other - Arab"
+  "Other - Chinese": "Asian - Chinese"
+  "Other - Any Other Ethnic Group": "Other - Any other ethnic group"
+  "Not Stated": "Not stated / Unknown"
+  "Not Provided": "Not stated / Unknown"
+  "Not recorded": "Not stated / Unknown"

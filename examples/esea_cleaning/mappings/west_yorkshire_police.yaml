@@ -1,0 +1,92 @@
+force_id: west_yorkshire_police
+display_name: West Yorkshire Police
+
+# Wave-4 (2025) PDF is the richest: monthly Jan-20 – May-25 with 21 self-defined
+# ethnicity codes (A1, A2, A3, A4, A9, B1, B2, B9, M1, M2, M3, M9, O2, O9, W1,
+# W2, W3, W4, W9, NS, NR) per month. Wave-3 (2023) PDF aggregates ESEA into one
+# bucket; Wave-4's per-code breakdown is much more useful.
+# Crimes table spans pages 3-5 (page 5 has crimes table 0, incidents table 1).
+# We take crimes only for fct_crime_aggs__v2 replication.
+# Columns after concat: 0=Month, 1=Crimes (total across ethnicities — ignored),
+# 2-22=per-ethnicity victim counts.
+source_file: "July 2025 FOI 2557019 25 East and Southeast Asian ESEA Hate Crimes Incidents.pdf"
+
+extraction:
+  pdf_tables:
+    - [3, 0]
+    - [4, 0]
+    - [5, 0]
+  header: null
+  drop_row_indices: [0, 1]
+  rename_columns:
+    0: "Month"
+    1: "Crimes"
+    2: "A1"
+    3: "A2"
+    4: "A3"
+    5: "A4"
+    6: "A9"
+    7: "B1"
+    8: "B2"
+    9: "B9"
+    10: "M1"
+    11: "M2"
+    12: "M3"
+    13: "M9"
+    14: "O2"
+    15: "O9"
+    16: "W1"
+    17: "W2"
+    18: "W3"
+    19: "W4"
+    20: "W9"
+    21: "NS"
+    22: "NR"
+  shape: wide_ethnicity
+  columns:
+    date: "Month"
+  ethnicity_columns:
+    - "A1"
+    - "A2"
+    - "A3"
+    - "A4"
+    - "A9"
+    - "B1"
+    - "B2"
+    - "B9"
+    - "M1"
+    - "M2"
+    - "M3"
+    - "M9"
+    - "O2"
+    - "O9"
+    - "W1"
+    - "W2"
+    - "W3"
+    - "W4"
+    - "W9"
+    - "NS"
+    - "NR"
+
+mapping:
+  "A1": "Asian - Indian"
+  "A2": "Asian - Pakistani"
+  "A3": "Asian - Bangladeshi"
+  "A4": "Asian - Chinese"
+  "A9": "Asian - Other"
+  "B1": "Black - Caribbean"
+  "B2": "Black - African"
+  "B9": "Black - Other"
+  "M1": "Mixed - White and Black Caribbean"
+  "M2": "Mixed - White and Black African"
+  "M3": "Mixed - White and Asian"
+  "M9": "Mixed - Other"
+  "O2": "Other - Arab"
+  "O9": "Other - Any other ethnic group"
+  "W1": "White - English/Welsh/Scottish/Northern Irish/British"
+  "W2": "White - Irish"
+  "W3": "White - Gypsy or Irish Traveller"
+  "W4": "White - Gypsy or Irish Traveller"
+  "W9": "White - Other"
+  "NS": "Not stated / Unknown"
+  "NR": "Not stated / Unknown"

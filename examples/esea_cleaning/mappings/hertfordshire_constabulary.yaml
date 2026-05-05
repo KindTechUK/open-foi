@@ -1,0 +1,36 @@
+force_id: hertfordshire_constabulary
+display_name: Hertfordshire Constabulary
+
+source_file: "Herts response FOI2025 04691.docx"
+
+# Hertfordshire provides 4 DOCX tables:
+#   T0: Month × Year crime totals (no ethnicity) — skip
+#   T1: Ethnicity × Year crime breakdown — USE THIS
+#   T2: Month × Year incident totals (no ethnicity) — skip
+#   T3: Ethnicity × Year incident breakdown — skip (crime is the
+#       primary metric matching most other forces)
+# Annual-granularity only; emits with granularity="annual".
+extraction:
+  table_index: 1
+  header: 0
+  shape: wide_years
+  columns:
+    ethnicity: "Ethnic Appearance"
+  year_columns:
+    "2020": 2020
+    "2021": 2021
+    "2022": 2022
+    "2023": 2023
+    "2024": 2024
+    "2025": 2025
+  skip_ethnicities:
+    - "Grand Total"
+
+mapping:
+  "Black": "Black - Other"
+  "Asian": "Asian - Other"
+  "White - North European": "White - Other"
+  "White - South European": "White - Other"
+  "Middle Eastern": "Other - Arab"
+  "Chinese, Japanese or South East Asian": "Asian - Other"
+  "Ethnic Appearance not Stated": "Not stated / Unknown"

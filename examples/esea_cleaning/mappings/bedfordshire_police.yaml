@@ -1,0 +1,60 @@
+force_id: bedfordshire_police
+display_name: Bedfordshire Police
+
+# Bedfordshire supplied TWO DOCX files:
+#   Beds Response FOI2025 05624.docx — all ethnicities, tables 0–3 cover 2020–2023
+#                                      with Jan-Dec × ethnicity. Good coverage
+#                                      but mid-sized force (Grand Total ≈5400).
+#   Beds Response FOI2025 04494.docx — ESEA-filtered (Asian + Chinese/Japanese/
+#                                      South East Asian), tables 0–4 cover
+#                                      2020-2024 cleanly by Jan-Dec.
+# We use 04494 because the full 5-year monthly window is more analytically
+# useful for ESEA-focused work; table 5 (2025 Jan-May partial) is dropped
+# because it has a different shape (no ethnicity label column).
+source_file: "Beds Response FOI2025 04494.docx"
+
+# Each of tables 0–4 has the same structure (header at row 2):
+#   col 0:  "Crime / Incident Ethnicit" — ethnicity label
+#   cols 1–12: Jan, Feb, ..., Dec — month counts
+#   col 13: "" — year total (unused)
+# Data rows: Crime(agg) / Asian / Chinese,Japanese,SE Asian / NonCrime(agg) /
+#   Asian (NonCrime) / Chinese ... (NonCrime) / Grand Total.
+# We skip the aggregate rows and let wide_months sum the duplicated ethnicity
+# rows (Crime + NonCrime sub-sections share the same ethnicity label).
+extraction:
+  tables: [0, 1, 2, 3, 4]
+  table_index_column: "_table_index"
+  header: 2
+  shape: wide_months
+  columns:
+    ethnicity: 0
+    year: "_table_index"
+  # Month columns are positional integers 1–12 (after the multi-table loader
+  # normalises per-table headers to positional column indices).
+  month_columns:
+    1: 1
+    2: 2
+    3: 3
+    4: 4
+    5: 5
+    6: 6
+    7: 7
+    8: 8
+    9: 9
+    10: 10
+    11: 11
+    12: 12
+  table_to_year:
+    0: 2020
+    1: 2021
+    2: 2022
+    3: 2023
+    4: 2024
+  skip_ethnicities:
+    - "Crime"
+    - "Non Crime"
+    - "Grand Total"
+
+mapping:
+  "Asian": "Asian - Other"
+  "Chinese, Japanese or South East Asian": "Asian - Other"

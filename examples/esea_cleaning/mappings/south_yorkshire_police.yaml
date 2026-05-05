@@ -1,0 +1,31 @@
+force_id: south_yorkshire_police
+display_name: South Yorkshire Police
+
+# Wave-4 response was absent. Using the Wave-2 (2022) XLSX.
+# Structure: year-section + month-rows × 4 ethnicity columns.
+source_file: "2022/20221001 Publish.xlsx"
+
+extraction:
+  sheet: "Q1"
+  header: 4
+  rename_columns:
+    "Self-Defined Ethnicity ": "Asian"
+    "Unnamed: 2": "Chinese, Japanese or South East Asian"
+    "Unnamed: 3": "Unknown"
+    "Unnamed: 4": "White - North European"
+  shape: year_sections
+  columns:
+    section: "Unnamed: 0"
+  ethnicity_columns:
+    - "Asian"
+    - "Chinese, Japanese or South East Asian"
+    - "Unknown"
+    - "White - North European"
+  drop_sections:
+    - "Incident Created Month"
+
+mapping:
+  "Asian": "Asian - Other"
+  "Chinese, Japanese or South East Asian": "Asian - Other"
+  "Unknown": "Not stated / Unknown"
+  "White - North European": "White - Other"

@@ -1,0 +1,44 @@
+force_id: durham_constabulary
+display_name: Durham Constabulary
+
+# Wave-2 (2022) DOCX. Third table has the ethnicity breakdown:
+#   Header | Row Labels | 8 ethnicity cols + Grand Total
+#   2019   | annual totals across ethnicities                 ← annual row
+#   2020   | annual totals
+#   2021   | annual totals
+#   2022   | (empty) marker row
+#   Jan    | counts for Jan 2022                              ← monthly detail
+#   Feb    | ...
+#   Grand Total | ...                                         ← dropped
+# Uses year_sections with emit_year_rows_as_annual so 2019/2020/2021 rows emit
+# at month=0 (annual sentinel) while Jan-Apr emit at their month for 2022.
+source_file: "2022/FOI 422 22 RESPONSE.docx"
+
+extraction:
+  table_index: 2
+  header: 0
+  shape: year_sections
+  columns:
+    section: "Row Labels"
+  ethnicity_columns:
+    - "Asian"
+    - "White - North European"
+    - "Black"
+    - "Middle Eastern"
+    - "Unknown"
+    - "Chinese, Japanese or South East Asian"
+    - "White - South European"
+    - "Missing Data"
+  drop_sections:
+    - "Grand Total"
+  emit_year_rows_as_annual: true
+
+mapping:
+  "Asian": "Asian - Other"
+  "White - North European": "White - Other"
+  "Black": "Black - Other"
+  "Middle Eastern": "Other - Arab"
+  "Unknown": "Not stated / Unknown"
+  "Chinese, Japanese or South East Asian": "Asian - Other"
+  "White - South European": "White - Other"
+  "Missing Data": "Not stated / Unknown"

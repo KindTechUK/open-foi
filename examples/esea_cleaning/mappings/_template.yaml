@@ -1,0 +1,27 @@
+# Per-force mapping template. Copy to `<force_id>.yaml` and fill in.
+# `force_id` matches the snake_cased folder name under examples/esea_data/,
+# e.g. `staffordshire_police`, `avon_and_somerset_constabulary`.
+
+force_id: example_force
+display_name: Example Force
+
+source_file: "relative/path/under/force/folder.xlsx"
+
+# How to read the raw file into a 3-column long table.
+extraction:
+  sheet: "Sheet1"            # xlsx/ods only; ignored otherwise
+  shape: long_ffill          # long_ffill | wide_months | wide_ethnicity | event_log
+  columns:
+    date: "Column A"         # cell containing month/year (forward-filled if long_ffill)
+    ethnicity: "Column B"    # the ethnicity label
+    count: "Column C"        # the incident count
+  ffill_dates: true          # forward-fill sparse dates (long_ffill only)
+  drop_empty_rows: true      # drop rows where all three columns are NaN
+  # Optional: skip rows matching these ethnicity labels (case-insensitive)
+  # skip_ethnicities: ["TOTAL", "Grand Total"]
+
+# source_label → ONS 18+1 category.
+# Labels must match the file exactly (whitespace/capitalisation preserved).
+# Unmapped labels pass through with ons_ethnicity=null and are flagged in the
+# per-force audit JSON so they can be resolved here.
+mapping: {}

@@ -1,0 +1,29 @@
+force_id: essex_police
+display_name: Essex Police
+
+# No Wave-4 response. Wave-2 (2022) XLSX has TWO tables side-by-side:
+# left  (cols 0-4): officer-observed ethnic appearance (coarse 2-col ESEA bucket)
+# right (cols 7-11): self-defined ethnicity (3 columns — the FOI category of record)
+# We use the right table — self-defined is the standard census/ONS basis.
+# Year is given once per year on the Jan row and blank for Feb-Dec, so we ffill.
+# Grand Total row has month=NaN and is filtered by wide_ethnicity's month parser.
+source_file: "2022/09a 17018 DISCLOSURE Race Hate Results.xlsx"
+
+extraction:
+  sheet: "Results"
+  header: 5
+  ffill_columns:
+    - "Year.1"
+  shape: wide_ethnicity
+  columns:
+    year: "Year.1"
+    month: "Month.1"
+  ethnicity_columns:
+    - "Any Other Asian Background"
+    - "Chinese"
+    - "White And Asian"
+
+mapping:
+  "Any Other Asian Background": "Asian - Other"
+  "Chinese": "Asian - Chinese"
+  "White And Asian": "Mixed - White and Asian"

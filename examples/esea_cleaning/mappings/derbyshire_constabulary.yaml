@@ -1,0 +1,46 @@
+force_id: derbyshire_constabulary
+display_name: Derbyshire Constabulary
+
+# Wave-4 PDF was a PowerBI squashed 417×67 table (deferred).
+# The 2023 CSV is a clean month-section format — same pattern as Dorset/West Mercia.
+# Structure: month header (e.g. "January") with year-total counts, followed by
+# ethnicity rows with year breakdowns, repeated for each month.
+source_file: "2023/Hate crimes.csv"
+
+extraction:
+  header: 3   # row 3 has "Created Month | 2017 | 2018 | ... | Grand Total"
+  shape: month_sections
+  columns:
+    section: "Created Month"
+  year_columns:
+    "2017": 2017
+    "2018": 2018
+    "2019": 2019
+    "2020": 2020
+    "2021": 2021
+    "2022": 2022
+    "2023": 2023
+    "2024": 2024
+  drop_sections:
+    - "Grand Total"
+
+mapping:
+  "A1. Asian - Indian": "Asian - Indian"
+  "A2. Asian - Pakistani": "Asian - Pakistani"
+  "A3. Asian - Bangladeshi": "Asian - Bangladeshi"
+  "A9. Any other Asian background": "Asian - Other"
+  "O2. Arab": "Other - Arab"
+  "W2. White Irish": "White - Irish"
+  "B1. Black Caribbean": "Black - Caribbean"
+  "B2. Black African": "Black - African"
+  "B9. Any other Black background": "Black - Other"
+  "M1. White & Black Caribbean": "Mixed - White and Black Caribbean"
+  "M2. White & Black African": "Mixed - White and Black African"
+  "M3. White & Asian": "Mixed - White and Asian"
+  "M9. Any other mixed background": "Mixed - Other"
+  "Not Recorded": "Not stated / Unknown"
+  "NS. Not stated": "Not stated / Unknown"
+  "O1. Chinese": "Asian - Chinese"
+  "O9. Any other ethnic group": "Other - Any other ethnic group"
+  "W1. White British": "White - English/Welsh/Scottish/Northern Irish/British"
+  "W9. Any other white background": "White - Other"

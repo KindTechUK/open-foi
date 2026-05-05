@@ -1,0 +1,38 @@
+force_id: city_of_london_police
+display_name: City of London Police
+
+source_file: "FOI2025 00826 Data.xlsx"
+
+# Event log on sheet "Hate Crime" (924 rows). Row 0 is blank, row 1 is
+# the header — tell pandas via header=1.
+extraction:
+  sheet: "Hate Crime"
+  header: 2
+  shape: event_log
+  columns:
+    ethnicity: "Self Defined Ethnicity"
+    date: "Occurrence Created Date/Time"
+  null_ethnicity_label: "Not recorded"
+
+mapping:
+  "A1. Asian - Indian": "Asian - Indian"
+  "A2. Asian - Pakistani": "Asian - Pakistani"
+  "A3. Asian - Bangladeshi": "Asian - Bangladeshi"
+  "A4. Asian - Chinese": "Asian - Chinese"
+  "A9. Any other Asian background": "Asian - Other"
+  "B1. Black Caribbean": "Black - Caribbean"
+  "B2. Black African": "Black - African"
+  "B9. Any other Black background": "Black - Other"
+  "M1. White & Black Caribbean": "Mixed - White and Black Caribbean"
+  "M2. White & Black African": "Mixed - White and Black African"
+  "M3. White & Asian": "Mixed - White and Asian"
+  "M9. Any other mixed background": "Mixed - Other"
+  "W1. White British": "White - English/Welsh/Scottish/Northern Irish/British"
+  "W2. White Irish": "White - Irish"
+  "W3. White Gypsy or Irish Traveller": "White - Gypsy or Irish Traveller"
+  "W9. Any other white background": "White - Other"
+  "O1. Chinese": "Asian - Chinese"
+  "O2. Arab": "Other - Arab"
+  "O9. Any other ethnic group": "Other - Any other ethnic group"
+  "NS. Not stated": "Not stated / Unknown"
+  "Not recorded": "Not stated / Unknown"

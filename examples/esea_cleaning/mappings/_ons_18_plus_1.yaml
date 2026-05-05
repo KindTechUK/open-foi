@@ -1,0 +1,43 @@
+# UK Census 2021 (England & Wales) ethnic-group categories — the "18+1" set.
+#
+# Source: ONS Census 2021, classification ETH020 (19 categories including
+# "Not stated" / "Unknown" which we treat as a single bucket for cross-force
+# comparability).
+#
+# Per-force mapping files (e.g. staffordshire_police.yaml) map each force's
+# source ethnicity labels onto exactly one of these canonical labels.
+# Keep these labels stable — the master `esea_long.csv` uses them verbatim
+# in the `ons_ethnicity` column.
+
+categories:
+  # White (5)
+  - White - English/Welsh/Scottish/Northern Irish/British
+  - White - Irish
+  - White - Gypsy or Irish Traveller
+  - White - Roma
+  - White - Other
+
+  # Mixed / Multiple ethnic groups (4)
+  - Mixed - White and Black Caribbean
+  - Mixed - White and Black African
+  - Mixed - White and Asian
+  - Mixed - Other
+
+  # Asian / Asian British (5)
+  - Asian - Indian
+  - Asian - Pakistani
+  - Asian - Bangladeshi
+  - Asian - Chinese
+  - Asian - Other
+
+  # Black / Black British / Caribbean / African (3)
+  - Black - African
+  - Black - Caribbean
+  - Black - Other
+
+  # Other ethnic group (2)
+  - Other - Arab
+  - Other - Any other ethnic group
+
+  # +1: not stated / unknown / not recorded
+  - Not stated / Unknown

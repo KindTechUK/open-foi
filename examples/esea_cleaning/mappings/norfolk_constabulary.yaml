@@ -1,0 +1,59 @@
+force_id: norfolk_constabulary
+display_name: Norfolk Constabulary
+
+source_file: "FOI RESPONSE 2025 02444.pdf"
+
+# Norfolk submitted a clean PDF where page 2's single table has a nested
+# year-section + month-detail layout:
+#   row 0: "Norfolk - racial hat..." (merged title — skipped by header=1)
+#   row 0 (after header): "2020" — annual totals (dropped by year_sections)
+#   rows 1–12: Jan-Dec 2020 monthly counts per ethnicity
+#   row 13: "2021"
+#   rows 14–25: Jan-Dec 2021
+# ... and so on through 2025.
+# Ethnicity columns: "blank" (unrecorded), "Asian", "Black", "Chinese,
+# Japanese or SE Asian", "Middle Eastern", "Unknown", "White - North European",
+# "White - South European".
+extraction:
+  # Norfolk data spans pages 2, 3, 4 (table 0 on each). Only page 2 has the
+  # title/header row; pages 3-4 start with data continuation. Use header=None
+  # so all pages concat cleanly, then rename columns via YAML.
+  pdf_pages: [2, 3, 4]
+  header: null
+  pdf_normalize_columns: false
+  rename_columns:
+    0: "section"
+    1: "blank"
+    2: "Asian"
+    3: "Black"
+    4: "Chinese, Japanese or South East Asian"
+    5: "Middle Eastern"
+    6: "Unknown"
+    7: "White - North European"
+    8: "White - South European"
+  shape: year_sections
+  columns:
+    section: "section"
+  ethnicity_columns:
+    - "blank"
+    - "Asian"
+    - "Black"
+    - "Chinese, Japanese or South East Asian"
+    - "Middle Eastern"
+    - "Unknown"
+    - "White - North European"
+    - "White - South European"
+
+# "blank" and "Unknown" both mean unrecorded → Not stated / Unknown.
+# "Asian" is unspecified sub-Asian (Indian/Pakistani/etc not split) → Asian - Other.
+# "Black" similarly coarse → Black - Other. "White - North European" ≈ White Brit
+# in UK self-defined systems but keeping it as White - Other is safer.
+mapping:
+  "blank": "Not stated / Unknown"
+  "Asian": "Asian - Other"
+  "Black": "Black - Other"
+  "Chinese, Japanese or South East Asian": "Asian - Other"
+  "Middle Eastern": "Other - Arab"
+  "Unknown": "Not stated / Unknown"
+  "White - North European": "White - Other"
+  "White - South European": "White - Other"

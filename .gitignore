@@ -1,0 +1,15 @@
+__pycache__/
+*.pyc
+.venv/
+*.egg-info/
+dist/
+build/
+.pytest_cache/
+.ruff_cache/
+cache.db
+foi-data/
+src/foi_cli/_version.py
+examples/*_requests.json
+examples/esea_data/
+examples/esea_data_cleaned/
+research/

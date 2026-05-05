@@ -1,0 +1,55 @@
+force_id: devon_and_cornwall_police
+display_name: Devon and Cornwall Police
+
+source_file: "RECORD 1.XLSX.xlsx"
+
+# "Crime Data" sheet — wide-ethnicity with "Year Crimed" as "YYYY-Mmm" strings.
+# Also contains "2025-Jun*" partial month (footnote marker) and a trailing
+# "Total" row we must skip.
+extraction:
+  sheet: "Crime Data"
+  header: 1
+  shape: wide_ethnicity
+  columns:
+    date: "Year Crimed"
+  ethnicity_columns:
+    - "Any other"
+    - "Any other Asian background"
+    - "Any other Black background"
+    - "Any other mixed"
+    - "Any other white background"
+    - "Arab"
+    - "Asian Bangladeshi inc Asian British"
+    - "Asian Chinese inc Asian British"
+    - "Asian Indian inc Asian British"
+    - "Asian Pakistani inc Asian British"
+    - "Black African inc Black British"
+    - "Black Caribbean inc Black British"
+    - "Mixed White & Asian"
+    - "Mixed White & Black African"
+    - "Mixed White & Black Caribbean"
+    - "White British"
+    - "White Gypsy or Irish Traveller"
+    - "White Irish"
+    - "White Roma"
+
+mapping:
+  "Any other": "Other - Any other ethnic group"
+  "Any other Asian background": "Asian - Other"
+  "Any other Black background": "Black - Other"
+  "Any other mixed": "Mixed - Other"
+  "Any other white background": "White - Other"
+  "Arab": "Other - Arab"
+  "Asian Bangladeshi inc Asian British": "Asian - Bangladeshi"
+  "Asian Chinese inc Asian British": "Asian - Chinese"
+  "Asian Indian inc Asian British": "Asian - Indian"
+  "Asian Pakistani inc Asian British": "Asian - Pakistani"
+  "Black African inc Black British": "Black - African"
+  "Black Caribbean inc Black British": "Black - Caribbean"
+  "Mixed White & Asian": "Mixed - White and Asian"
+  "Mixed White & Black African": "Mixed - White and Black African"
+  "Mixed White & Black Caribbean": "Mixed - White and Black Caribbean"
+  "White British": "White - English/Welsh/Scottish/Northern Irish/British"
+  "White Gypsy or Irish Traveller": "White - Gypsy or Irish Traveller"
+  "White Irish": "White - Irish"
+  "White Roma": "White - Roma"

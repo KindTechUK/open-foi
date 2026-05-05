@@ -1,0 +1,26 @@
+force_id: surrey_police
+display_name: Surrey Police
+
+# Wave-3 (2023) XLSX covers 2017-08/2023 — the widest Surrey window available,
+# and uniquely provides crime/incident split. For replicating fct_crime_aggs__v2
+# we keep Crime/Incident = "HATE CRIME" rows only.
+# Layout: long_ffill with Year-Month date column, ethnicity, count.
+source_file: "2023/FOI 6238 23 Hate Crimes.xlsx"
+
+extraction:
+  sheet: "Sheet1"
+  header: 0
+  filter_rows:
+    "Crime/Incident":
+      - "HATE CRIME"
+  shape: long_ffill
+  columns:
+    date: "Year - Month"
+    ethnicity: "Etnicity"
+    count: "Number of Hate Crimes/Incidents"
+  ffill_dates: false
+  drop_empty_rows: true
+
+mapping:
+  "4. Asian": "Asian - Other"
+  "5. Chinese,Japanese,SE Asian": "Asian - Other"

@@ -1,0 +1,8 @@
+agent = "codex"
+
+[ci]
+agents = ["codex"]
+review_types = ["security", "default"]
+reasoning = "standard"
+min_severity = "medium"
+upsert_comments = true

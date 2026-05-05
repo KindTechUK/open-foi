@@ -1,0 +1,34 @@
+force_id: lincolnshire_police
+display_name: Lincolnshire Police
+
+# Lincolnshire's 2025 PDF had year markers buried in surrounding text — we
+# deferred it. The 2024 XLSX response is cleaner: forward-filled year column,
+# month column, then one count column per ESEA ethnicity. Covers 2018–2023.
+source_file: "2024/FOI 24 1371a Hate Crimes 2017 2023.xlsx"
+
+extraction:
+  shape: wide_ethnicity
+  rename_columns:
+    "Unnamed: 0": year
+    "Unnamed: 1": month
+  # ffill runs AFTER rename_columns in the orchestrator, so use the new name.
+  ffill_columns:
+    - year
+  columns:
+    year: year
+    month: month
+  ethnicity_columns:
+    - "Any other Asian background"
+    - "Bangladeshi"
+    - "Chinese"
+    - "Indian"
+    - "Mixed - White & Asian"
+    - "Pakistani"
+
+mapping:
+  "Any other Asian background": "Asian - Other"
+  "Bangladeshi": "Asian - Bangladeshi"
+  "Chinese": "Asian - Chinese"
+  "Indian": "Asian - Indian"
+  "Mixed - White & Asian": "Mixed - White and Asian"
+  "Pakistani": "Asian - Pakistani"

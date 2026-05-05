@@ -1,0 +1,31 @@
+force_id: warwickshire_police
+display_name: Warwickshire Police
+
+# No Wave-4 response. Wave-2 (2022) XLSX has two files: "response.xlsx" includes
+# incidents, "without incidents.xlsx" is crimes-only. For replicating
+# fct_crime_aggs__v2.csv we use crimes-only.
+# Layout: header at row 4 — Month | 2019 | 2020 | 2021 | 2022 | Ethnicity | Grand Total.
+# Single ethnicity label (Chinese/Japanese/SE Asian bucket). Grand Total row at bottom.
+source_file: "2022/FOI 336 2022 response without incidents.xlsx"
+
+extraction:
+  header: 4
+  shape: wide_years_monthly
+  columns:
+    month: "Month"
+    ethnicity: "Ethnicity"
+  rename_columns:
+    2019.0: 2019
+    2020.0: 2020
+    2021.0: 2021
+    2022.0: 2022
+  year_columns:
+    2019: 2019
+    2020: 2020
+    2021: 2021
+    2022: 2022
+  skip_months:
+    - "Grand Total"
+
+mapping:
+  "Chinese, Japanese, Or Any Other South East Asian": "Asian - Other"

@@ -1,0 +1,115 @@
+force_id: lancashire_constabulary
+display_name: Lancashire Constabulary
+
+# Wave-4 (2025) PDF — pdfplumber cannot resolve tables, but the text layer is
+# regular: each ethnicity row ends with 72 whitespace-separated numeric tokens
+# (12 months × 5 years + 6 months for 2025 + 6 annual totals).
+# We use the new `pdf_text_values_per_row` loader mode to parse the text flow.
+# Page 1 = Crimes (what we use for fct_crime_aggs__v2); page 0 = Incidents.
+# Data covers Jan 2020 – Jun 2025 on pages 1-2. Annual-total columns are
+# unnamed after rename and therefore ignored by wide_months' Mmm-YY pattern.
+# Some labels wrap mid-word across lines (e.g. "Any Other Asian Backgroun d")
+# — mapped literally below.
+source_file: "Hate crime incidents FOI2025 02114.pdf"
+
+extraction:
+  pdf_text_page: [1, 2]
+  pdf_text_values_per_row: 72
+  pdf_text_skip_before_label: "African"
+  rename_columns:
+    0: "Ethnicity"
+    1: "Jan-20"
+    2: "Feb-20"
+    3: "Mar-20"
+    4: "Apr-20"
+    5: "May-20"
+    6: "Jun-20"
+    7: "Jul-20"
+    8: "Aug-20"
+    9: "Sep-20"
+    10: "Oct-20"
+    11: "Nov-20"
+    12: "Dec-20"
+    14: "Jan-21"
+    15: "Feb-21"
+    16: "Mar-21"
+    17: "Apr-21"
+    18: "May-21"
+    19: "Jun-21"
+    20: "Jul-21"
+    21: "Aug-21"
+    22: "Sep-21"
+    23: "Oct-21"
+    24: "Nov-21"
+    25: "Dec-21"
+    27: "Jan-22"
+    28: "Feb-22"
+    29: "Mar-22"
+    30: "Apr-22"
+    31: "May-22"
+    32: "Jun-22"
+    33: "Jul-22"
+    34: "Aug-22"
+    35: "Sep-22"
+    36: "Oct-22"
+    37: "Nov-22"
+    38: "Dec-22"
+    40: "Jan-23"
+    41: "Feb-23"
+    42: "Mar-23"
+    43: "Apr-23"
+    44: "May-23"
+    45: "Jun-23"
+    46: "Jul-23"
+    47: "Aug-23"
+    48: "Sep-23"
+    49: "Oct-23"
+    50: "Nov-23"
+    51: "Dec-23"
+    53: "Jan-24"
+    54: "Feb-24"
+    55: "Mar-24"
+    56: "Apr-24"
+    57: "May-24"
+    58: "Jun-24"
+    59: "Jul-24"
+    60: "Aug-24"
+    61: "Sep-24"
+    62: "Oct-24"
+    63: "Nov-24"
+    64: "Dec-24"
+    66: "Jan-25"
+    67: "Feb-25"
+    68: "Mar-25"
+    69: "Apr-25"
+    70: "May-25"
+    71: "Jun-25"
+  shape: wide_months
+  columns:
+    ethnicity: "Ethnicity"
+  skip_ethnicities:
+    - "Grand Total"
+
+mapping:
+  "African": "Black - African"
+  "Any Other Asian Backgroun d": "Asian - Other"
+  "Any Other Black Backgroun d": "Black - Other"
+  "Any Other Ethnic Group": "Other - Any other ethnic group"
+  "Any Other Mixed Backgroun d": "Mixed - Other"
+  "Any Other White Backgroun d": "White - Other"
+  "Arab": "Other - Arab"
+  "Banglades hi": "Asian - Bangladeshi"
+  "Caribbean": "Black - Caribbean"
+  "Chinese": "Asian - Chinese"
+  "Chinese (expired 04-08-21)": "Asian - Chinese"
+  "Gypsy or Irish Traveller": "White - Gypsy or Irish Traveller"
+  "Indian": "Asian - Indian"
+  "Pakistani": "Asian - Pakistani"
+  "White And Asian": "Mixed - White and Asian"
+  "White And Black African": "Mixed - White and Black African"
+  "White And Black Caribbean": "Mixed - White and Black Caribbean"
+  "White British": "White - English/Welsh/Scottish/Northern Irish/British"
+  "White Irish": "White - Irish"
+  "Not stated": "Not stated / Unknown"
+  "Not recorded": "Not stated / Unknown"
+  "No linked victim": "Not stated / Unknown"

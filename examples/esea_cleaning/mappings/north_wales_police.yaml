@@ -1,0 +1,69 @@
+force_id: north_wales_police
+display_name: North Wales Police
+
+source_file: "2025 617 racist hate crimes.pdf"
+
+# North Wales supplied a long-format PDF across 21 pages — one row per
+# (year, month, ethnicity) with Crime + NonCrime counts.
+# pdfplumber places long ethnicity labels (e.g. "A9. Any other Asian
+# background") in col 2 for some rows and col 3 for others (line-wrap
+# artefact), so we coalesce the two before handing off to `shape_long`.
+# We count Crime only to stay consistent with most other forces' "hate crime"
+# semantic. The wrap-continuation rows (year/month null, only col 3 filled)
+# drop cleanly because shape_long rejects rows where year parse fails.
+extraction:
+  pdf_pages: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20]
+  header: null
+  pdf_normalize_columns: false
+  # After load, cols are positional ints 0..6.
+  rename_columns:
+    0: "year"
+    1: "month"
+    2: "ethnicity_a"
+    3: "ethnicity_b"
+    4: "pad"
+    5: "crime"
+    6: "noncrime"
+  coalesce_columns:
+    ethnicity: ["ethnicity_a", "ethnicity_b"]
+  shape: long
+  columns:
+    year: "year"
+    month: "month"
+    ethnicity: "ethnicity"
+    count: "crime"
+  skip_ethnicities:
+    - "Self Defined"
+    - "Ethnicity"
+
+# North Wales uses a blend of self-defined UK codes, descriptive labels, and
+# a few historical strays.
+mapping:
+  "A1. Asian - Indian": "Asian - Indian"
+  "A2. Asian - Pakistani": "Asian - Pakistani"
+  "A3. Asian - Bangladeshi": "Asian - Bangladeshi"
+  "A4. Asian - Chinese": "Asian - Chinese"
+  "A9. Any other Asian background": "Asian - Other"
+  "A9. Any other Asian": "Asian - Other"
+  "B1. Black Caribbean": "Black - Caribbean"
+  "B2. Black African": "Black - African"
+  "B9. Any other Black background": "Black - Other"
+  "B9. Any other Black": "Black - Other"
+  "M1. White & Black Caribbean": "Mixed - White and Black Caribbean"
+  "M2. White & Black African": "Mixed - White and Black African"
+  "M3. White & Asian": "Mixed - White and Asian"
+  "M9. Any other mixed background": "Mixed - Other"
+  "M9. Any other mixed": "Mixed - Other"
+  "NS. Not stated": "Not stated / Unknown"
+  "Not Recorded": "Not stated / Unknown"
+  "Not stated": "Not stated / Unknown"
+  "O2. Arab": "Other - Arab"
+  "02. Arab": "Other - Arab"
+  "O1. Chinese": "Asian - Chinese"
+  "O9. Any other": "Other - Any other ethnic group"
+  "O9. Any other ethnic group": "Other - Any other ethnic group"
+  "W1. White British": "White - English/Welsh/Scottish/Northern Irish/British"
+  "W2. White Irish": "White - Irish"
+  "W3. White Irish Traveller": "White - Gypsy or Irish Traveller"
+  "W9. Any other white background": "White - Other"
+  "W9. Any other white": "White - Other"

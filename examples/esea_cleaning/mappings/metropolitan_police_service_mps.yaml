@@ -1,0 +1,40 @@
+force_id: metropolitan_police_service_mps
+display_name: Metropolitan Police Service (MPS)
+
+# Wave-3 (2024) XLSX. Only wave with tabular data.
+# Layout (Tables sheet): Table 1 at rows 11-17 has year-rows × month-columns
+# for crimes (ethnic appearance = "East Asian"); Table 2 below is annual-only
+# non-crimes which we skip for fct_crime_aggs__v2 replication.
+# The file has a single implicit ethnicity ("East Asian") — we inject it via
+# add_columns so wide_months can melt against an ethnicity column.
+# Data range: 2017-2018 and 2021-02/2024 (2019/2020 omitted per notes).
+source_file: "2024/attachment.xlsx"
+
+extraction:
+  sheet: "Tables"
+  header: 11
+  nrows: 6    # 6 year rows (2017, 2018, 2021, 2022, 2023, 2024)
+  add_columns:
+    "Ethnicity": "East Asian"
+  shape: wide_months
+  columns:
+    ethnicity: "Ethnicity"
+    year: "Years"
+  month_columns:
+    "Jan": 1
+    "Feb": 2
+    "Mar": 3
+    "Apr": 4
+    "May": 5
+    "Jun": 6
+    "Jul": 7
+    "Aug": 8
+    "Sep": 9
+    "Oct": 10
+    "Nov": 11
+    "Dec": 12
+  drop_columns:
+    - "Grand Total"
+
+mapping:
+  "East Asian": "Asian - Other"

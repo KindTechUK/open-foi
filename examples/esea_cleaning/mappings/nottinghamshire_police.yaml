@@ -1,0 +1,43 @@
+force_id: nottinghamshire_police
+display_name: Nottinghamshire Police
+
+# Wave-4 (2025) PDF. Hate-crime section spans pages 1-2 (Hate Non-Crime
+# follows on pages 2-3 — excluded for fct_crime_aggs__v2 replication).
+# Layout: month_sections — each month has 3 ethnicity rows × 6 year cols.
+# Privacy-redacted cells are marked "<5" (any count 1–4); we replace them
+# with the midpoint (2) so they sum into the aggregate. This inflates zeros
+# but is the closest we can get to the true count given the redaction.
+source_file: "01 FOI 25 014704.pdf"
+
+extraction:
+  pdf_tables:
+    - [1, 0]
+    - [2, 0]
+  header: null
+  drop_row_indices: [0, 1]
+  rename_columns:
+    3: "2020"
+    6: "2021"
+    9: "2022"
+    12: "2023"
+    15: "2024"
+    18: "2025"
+  coalesce_columns:
+    section: [1, 0]
+  replace_values:
+    "<5": 2
+  shape: month_sections
+  columns:
+    section: "section"
+  year_columns:
+    "2020": 2020
+    "2021": 2021
+    "2022": 2022
+    "2023": 2023
+    "2024": 2024
+    "2025": 2025
+
+mapping:
+  "Asian Chinese inc Asian British": "Asian - Chinese"
+  "Any other Asian background": "Asian - Other"
+  "Mixed White & Asian": "Mixed - White and Asian"

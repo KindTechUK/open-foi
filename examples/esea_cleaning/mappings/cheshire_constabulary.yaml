@@ -1,0 +1,35 @@
+force_id: cheshire_constabulary
+display_name: Cheshire Constabulary
+
+# Wave-4 PDF was 72 fragmented tables (deferred). The 2022 XLSX is a clean
+# year-section table with monthly rows and 3 count columns.
+# Layout: each year (2019, 2020, 2021, 2022) has:
+#   year-row | sub-header row (Month | Total hate crimes | Self A4 | Visual IC5) |
+#   12 month-rows | Total row.
+# We load with header=2 so the sub-header row becomes column names; then year_sections
+# handles year headers, drops Total/sub-header repeats, and melts ethnicity columns.
+source_file: "2022/FOI 15024 Chinee E Asian hate crime victims Summary.xlsx"
+
+extraction:
+  sheet: "FOI 15024 - Summary"
+  header: null
+  rename_columns:
+    6: "section"
+    7: "total"
+    8: "Self ethnicity - A4 Chinese"
+    9: "Visual Ethnicity - IC5 Chinese, Japanese, South East Asian"
+  shape: year_sections
+  columns:
+    section: "section"
+  ethnicity_columns:
+    - "Self ethnicity - A4 Chinese"
+    - "Visual Ethnicity - IC5 Chinese, Japanese, South East Asian"
+  drop_sections:
+    - "Month"
+    - "Total"
+    - "total"
+
+mapping:
+  # A4 = Chinese self-defined. IC5 = visual: Chinese/Japanese/SE Asian broad category.
+  "Self ethnicity - A4 Chinese": "Asian - Chinese"
+  "Visual Ethnicity - IC5 Chinese, Japanese, South East Asian": "Asian - Other"

@@ -1,0 +1,23 @@
+force_id: humberside_police
+display_name: Humberside Police
+
+# Wave-4 PDF exists but the 2023 CSV has the cleanest structure.
+# Classic year_sections: header row, then year-row ("2017"..."2023") with
+# 12 month rows beneath, followed by a Grand Total row at the bottom.
+# Only 2 ethnicity columns — A4 (Chinese inc. British) and A9 (Other Asian).
+source_file: "2023/FOI.23.004630.N Hate Crimes RESULTS.csv"
+
+extraction:
+  header: 3
+  shape: year_sections
+  columns:
+    section: "Month-Year"
+  ethnicity_columns:
+    - "A4. Asian Chinese inc Asian British"
+    - "A9. Any other Asian background"
+  drop_sections:
+    - "Grand Total"
+
+mapping:
+  "A4. Asian Chinese inc Asian British": "Asian - Chinese"
+  "A9. Any other Asian background": "Asian - Other"

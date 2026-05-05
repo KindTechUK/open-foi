@@ -1,0 +1,65 @@
+force_id: gloucestershire_constabulary
+display_name: Gloucestershire Constabulary
+
+# No Wave-4 response. Wave-2 (2022) XLSX is a compact wide_months layout
+# with a year-header row above a month-header row (Jan Feb ... Dec ×
+# 2019/2020/2021 + Jan Feb Mar 2022). 3 ethnicity rows + Total.
+# Read headerless, rename positional columns to Mmm-YY so wide_months' default
+# pattern (`^[A-Z][a-z]{2}-\d{2}$`) picks them up, and drop the stub rows.
+source_file: "2022/FOI Data 2022.0383.xlsx"
+
+extraction:
+  header: null
+  drop_row_indices: [0, 1, 2, 6]
+  rename_columns:
+    0: "Ethnicity"
+    1: "Jan-19"
+    2: "Feb-19"
+    3: "Mar-19"
+    4: "Apr-19"
+    5: "May-19"
+    6: "Jun-19"
+    7: "Jul-19"
+    8: "Aug-19"
+    9: "Sep-19"
+    10: "Oct-19"
+    11: "Nov-19"
+    12: "Dec-19"
+    13: "Jan-20"
+    14: "Feb-20"
+    15: "Mar-20"
+    16: "Apr-20"
+    17: "May-20"
+    18: "Jun-20"
+    19: "Jul-20"
+    20: "Aug-20"
+    21: "Sep-20"
+    22: "Oct-20"
+    23: "Nov-20"
+    24: "Dec-20"
+    25: "Jan-21"
+    26: "Feb-21"
+    27: "Mar-21"
+    28: "Apr-21"
+    29: "May-21"
+    30: "Jun-21"
+    31: "Jul-21"
+    32: "Aug-21"
+    33: "Sep-21"
+    34: "Oct-21"
+    35: "Nov-21"
+    36: "Dec-21"
+    37: "Jan-22"
+    38: "Feb-22"
+    39: "Mar-22"
+    40: "Total"
+  shape: wide_months
+  columns:
+    ethnicity: "Ethnicity"
+  drop_columns:
+    - "Total"
+
+mapping:
+  "Any Other Asian Background": "Asian - Other"
+  "Any Other Ethnic Group": "Other - Any other ethnic group"
+  "Chinese": "Asian - Chinese"

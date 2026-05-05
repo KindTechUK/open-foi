@@ -1,0 +1,128 @@
+force_id: merseyside_police
+display_name: Merseyside Police
+
+source_file: "Appendix 1 GT 2025 0952 Wong.xlsx"
+
+# Merseyside structures the data with ONE SHEET PER YEAR. Each sheet has:
+#   row 0: " Racial" (overall total for the year)
+#   row 1: "Not Recorded" (how many offences had no ethnicity)
+#   rows 2-13: monthly totals (Jan, Feb, ..., Dec)  — IGNORED (no ethnicity breakdown)
+#   rows 14+: ethnicity section header rows (with annual total) + month-detail rows
+#   last row: "Grand Total"
+# The force has preserved 3–4 historical ethnicity coding systems as separate labels
+# (e.g. "A1. ASIAN - INDIAN" / "A1. ASIAN INDIAN INC ASIAN BRITISH" / "A1. INDIAN"), all
+# of which we fold into the same ONS bucket.
+extraction:
+  sheets:
+    - "2020"
+    - "2021"
+    - "2022"
+    - "2023"
+    - "2024"
+    - "01-01-25 - 05-06-25"
+  sheet_name_column: "_year_from_sheet"
+  shape: ethnicity_sections
+  columns:
+    section: 0
+    count: 1
+    year: "_year_from_sheet"
+  # The last sheet's name is "01-01-25 - 05-06-25"; map it to year 2025.
+  sheet_to_year:
+    "2020": 2020
+    "2021": 2021
+    "2022": 2022
+    "2023": 2023
+    "2024": 2024
+    "01-01-25 - 05-06-25": 2025
+  # Explicit whitelist of ethnicity labels (rows that start a section).
+  # Anything in drop_sections is skipped before classification.
+  drop_sections:
+    - " Racial"
+    - "Racial"
+    - "Not Recorded"
+    - "Grand Total"
+  ethnicity_labels:
+    - "A1. ASIAN - INDIAN"
+    - "A1. ASIAN INDIAN INC ASIAN BRITISH"
+    - "A1. INDIAN"
+    - "A2. ASIAN - PAKISTANI"
+    - "A2. ASIAN PAKISTANI INC ASIAN BRITISH"
+    - "A2. PAKISTANI"
+    - "A3. ASIAN - BANGLADESHI"
+    - "A3. ASIAN BANGLADESHI INC ASIAN BRITISH"
+    - "A3. BANGLADESHI"
+    - "A4. ASIAN CHINESE INC ASIAN BRITISH"
+    - "A4. CHINESE"
+    - "A9. ANY OTHER ASIAN BACKGROUND"
+    - "B1. BLACK CARIBBEAN"
+    - "B1. BLACK CARIBBEAN INC BLACK BRITISH"
+    - "B1. CARIBBEAN"
+    - "B2. AFRICAN"
+    - "B2. BLACK AFRICAN"
+    - "B2. BLACK AFRICAN INC BLACK BRITISH"
+    - "B9. ANY OTHER BLACK BACKGROUND"
+    - "HIST - G1. GYPSY"
+    - "HIST - T1. TRAVELLER"
+    - "M1. MIXED WHITE & BLACK CARIBBEAN"
+    - "M1. WHITE AND BLACK CARIBBEAN"
+    - "M2. MIXED WHITE & BLACK AFRICAN"
+    - "M2. WHITE AND BLACK AFRICAN"
+    - "M3. MIXED WHITE & ASIAN"
+    - "M3. WHITE AND ASIAN"
+    - "M9. ANY OTHER MIXED"
+    - "M9. ANY OTHER MIXED BACKGROUND"
+    - "NS. NOT STATED"
+    - "O1. CHINESE"
+    - "O2. ARAB"
+    - "O9. ANY OTHER"
+    - "O9. ANY OTHER ETHNIC GROUP"
+    - "W1. BRITISH"
+    - "W1. WHITE BRITISH"
+    - "W2. IRISH"
+    - "W2. WHITE IRISH"
+    - "W3. GYPSY OR IRISH TRAVELLER"
+    - "W3. WHITE GYPSY OR IRISH TRAVELLER"
+    - "W9. ANY OTHER WHITE BACKGROUND"
+
+mapping:
+  "A1. ASIAN - INDIAN": "Asian - Indian"
+  "A1. ASIAN INDIAN INC ASIAN BRITISH": "Asian - Indian"
+  "A1. INDIAN": "Asian - Indian"
+  "A2. ASIAN - PAKISTANI": "Asian - Pakistani"
+  "A2. ASIAN PAKISTANI INC ASIAN BRITISH": "Asian - Pakistani"
+  "A2. PAKISTANI": "Asian - Pakistani"
+  "A3. ASIAN - BANGLADESHI": "Asian - Bangladeshi"
+  "A3. ASIAN BANGLADESHI INC ASIAN BRITISH": "Asian - Bangladeshi"
+  "A3. BANGLADESHI": "Asian - Bangladeshi"
+  "A4. ASIAN CHINESE INC ASIAN BRITISH": "Asian - Chinese"
+  "A4. CHINESE": "Asian - Chinese"
+  "A9. ANY OTHER ASIAN BACKGROUND": "Asian - Other"
+  "B1. BLACK CARIBBEAN": "Black - Caribbean"
+  "B1. BLACK CARIBBEAN INC BLACK BRITISH": "Black - Caribbean"
+  "B1. CARIBBEAN": "Black - Caribbean"
+  "B2. AFRICAN": "Black - African"
+  "B2. BLACK AFRICAN": "Black - African"
+  "B2. BLACK AFRICAN INC BLACK BRITISH": "Black - African"
+  "B9. ANY OTHER BLACK BACKGROUND": "Black - Other"
+  "HIST - G1. GYPSY": "White - Gypsy or Irish Traveller"
+  "HIST - T1. TRAVELLER": "White - Gypsy or Irish Traveller"
+  "M1. MIXED WHITE & BLACK CARIBBEAN": "Mixed - White and Black Caribbean"
+  "M1. WHITE AND BLACK CARIBBEAN": "Mixed - White and Black Caribbean"
+  "M2. MIXED WHITE & BLACK AFRICAN": "Mixed - White and Black African"
+  "M2. WHITE AND BLACK AFRICAN": "Mixed - White and Black African"
+  "M3. MIXED WHITE & ASIAN": "Mixed - White and Asian"
+  "M3. WHITE AND ASIAN": "Mixed - White and Asian"
+  "M9. ANY OTHER MIXED": "Mixed - Other"
+  "M9. ANY OTHER MIXED BACKGROUND": "Mixed - Other"
+  "NS. NOT STATED": "Not stated / Unknown"
+  "O1. CHINESE": "Asian - Chinese"
+  "O2. ARAB": "Other - Arab"
+  "O9. ANY OTHER": "Other - Any other ethnic group"
+  "O9. ANY OTHER ETHNIC GROUP": "Other - Any other ethnic group"
+  "W1. BRITISH": "White - English/Welsh/Scottish/Northern Irish/British"
+  "W1. WHITE BRITISH": "White - English/Welsh/Scottish/Northern Irish/British"
+  "W2. IRISH": "White - Irish"
+  "W2. WHITE IRISH": "White - Irish"
+  "W3. GYPSY OR IRISH TRAVELLER": "White - Gypsy or Irish Traveller"
+  "W3. WHITE GYPSY OR IRISH TRAVELLER": "White - Gypsy or Irish Traveller"
+  "W9. ANY OTHER WHITE BACKGROUND": "White - Other"

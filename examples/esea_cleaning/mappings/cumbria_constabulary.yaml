@@ -1,0 +1,50 @@
+force_id: cumbria_constabulary
+display_name: Cumbria Constabulary
+
+# Wave-4 PDF exists but the 2022 XLSX has a clean ethnicity_year_months layout.
+# Two tables in one sheet: (1) hate crimes, (2) hate incidents (non-crime).
+# For replication against fct_crime_aggs__v2.csv we only want crimes (Table 1).
+# Layout (Table 1):
+#   header: Year/Ethnicity | Jan..Dec | Total
+#   ethnicity-row (year-wide totals, ignored) → 3–4 year rows (2019..2022) →
+#   next ethnicity-row → ...
+# Final row is "Total" which we drop.
+# nrows=29 clips the sheet to Table 1 only (6 ethnicity sections + Total row).
+source_file: "2022/349 Answers 1 2.xlsx"
+
+extraction:
+  header: 2
+  nrows: 29
+  shape: ethnicity_year_months
+  columns:
+    section: "Year/Ethnicity"
+  month_columns:
+    - "Jan"
+    - "Feb"
+    - "Mar"
+    - "Apr"
+    - "May"
+    - "Jun"
+    - "Jul"
+    - "Aug"
+    - "Sep"
+    - "Oct"
+    - "Nov"
+    - "Dec"
+  ethnicity_labels:
+    - "Asian - Any Other Asian Background"
+    - "Asian - Bangladeshi"
+    - "Asian - Indian"
+    - "Asian - Pakistani"
+    - "Mixed - White and Asian"
+    - "Other - Chinese"
+  drop_sections:
+    - "Total"
+
+mapping:
+  "Asian - Any Other Asian Background": "Asian - Other"
+  "Asian - Bangladeshi": "Asian - Bangladeshi"
+  "Asian - Indian": "Asian - Indian"
+  "Asian - Pakistani": "Asian - Pakistani"
+  "Mixed - White and Asian": "Mixed - White and Asian"
+  "Other - Chinese": "Asian - Chinese"

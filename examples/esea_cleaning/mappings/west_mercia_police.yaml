@@ -1,0 +1,51 @@
+force_id: west_mercia_police
+display_name: West Mercia Police
+
+source_file: "2025 07 15 FOI 415201 Data.csv"
+
+# West Mercia's CSV has TWO tables:
+#   Table 1 (rows 7–252 after header): "Ethnicity of all victims for 6,621 race hate offences"
+#   Table 2 (rows 253+): "Ethnicity of each unique individual victim"
+# We use Table 1 because it matches the typical FOI "all victims" semantic used by
+# other forces. header=7 picks up the "CRIME/NONCRIME/Year Total" sub-headers.
+# Values inside each year triplet: CRIME + NONCRIME = Year Total (pre-computed),
+# so reading only the "Year Total" columns is equivalent to summing CRIME+NONCRIME.
+extraction:
+  sheet: null
+  header: 7
+  nrows: 253          # stop before Table 2
+  shape: month_sections
+  columns:
+    section: "Unnamed: 0"
+  year_columns:
+    "Year Total":   2020
+    "Year Total.1": 2021
+    "Year Total.2": 2022
+    "Year Total.3": 2023
+    "Year Total.4": 2024
+    "Year Total.5": 2025
+  drop_sections:
+    - "Self-Defined Ethnicity by Month"
+    - "Grand Total"
+
+mapping:
+  "Indian": "Asian - Indian"
+  "Pakistani": "Asian - Pakistani"
+  "Bangladeshi": "Asian - Bangladeshi"
+  "Chinese": "Asian - Chinese"
+  "Any Other Asian Background": "Asian - Other"
+  "Black African": "Black - African"
+  "Black Caribbean": "Black - Caribbean"
+  "Any Other Black, Black British or Caribbean Background": "Black - Other"
+  "White And Asian": "Mixed - White and Asian"
+  "White And Black African": "Mixed - White and Black African"
+  "White And Black Caribbean": "Mixed - White and Black Caribbean"
+  "Any Other Mixed or Multiple Background": "Mixed - Other"
+  "White British": "White - English/Welsh/Scottish/Northern Irish/British"
+  "White Irish": "White - Irish"
+  "Gypsy or Irish Traveller": "White - Gypsy or Irish Traveller"
+  "Any Other White Background": "White - Other"
+  "Arab": "Other - Arab"
+  "Any Other Ethnic Group": "Other - Any other ethnic group"
+  "Not Stated": "Not stated / Unknown"
+  "Not recorded": "Not stated / Unknown"

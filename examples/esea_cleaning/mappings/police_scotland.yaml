@@ -1,0 +1,52 @@
+force_id: police_scotland
+display_name: Police Scotland
+
+# Wave-3 (2023) XLSX. 4 tables:
+#   Table 1/2: crimes but aggregated by hate-aggravator type (not by ethnicity) — not usable.
+#   Table 3/4: breakdowns by "Hate Reasons" — but these are INCIDENTS ("Racial Hate
+#     Concern Incidents Nominals"), NOT crimes.
+# Police Scotland did NOT provide ESEA-specific crime data in this FOI.
+# We use Table 4 (monthly incidents) with CHINESE + ASIAN OTHER rows as the
+# closest proxy. Semantically divergent from the other forces (incidents, not
+# crimes) — flagged here so downstream can filter if needed.
+source_file: "2023/FOI 23 3298 Applicant Data 01.xlsx"
+
+extraction:
+  sheet: "Table 4"
+  header: 4
+  shape: long
+  columns:
+    year: "Year"
+    month: "Month"
+    ethnicity: "Hate Reasons"
+    count: "Count"
+  skip_ethnicities:
+    - "ACCENT (Language spoken)"
+    - "AFRICAN OTHER"
+    - "APPEARANCE (Skin colour, type of clothing etc)"
+    - "ASYLUM SEEKER/REFUGEE"
+    - "BLACK OTHER"
+    - "BLACK SCOTTISH"
+    - "ENGLISH"
+    - "GYPSY TRAVELLER"
+    - "INDIAN"
+    - "IRANIAN"
+    - "IRAQI"
+    - "IRISH"
+    - "JEWISH"
+    - "NOT KNOWN"
+    - "OTHER"
+    - "PAKISTANI"
+    - "POLISH"
+    - "ROMANIAN"
+    - "SCOTTISH"
+    - "SIKH"
+    - "SLOVAKIAN"
+    - "SOMALI"
+    - "TURKISH"
+    - "WELSH"
+    - "WHITE OTHER"
+
+mapping:
+  "CHINESE": "Asian - Chinese"
+  "ASIAN OTHER": "Asian - Other"

@@ -1,0 +1,30 @@
+force_id: kent_police
+display_name: Kent Police
+
+# No Wave-4 response. Using Wave-3 (2023) XLSX's Table 2 — the ethnicity
+# breakdown. Table 1 has month × year totals without ethnicity; Table 3 is
+# Non-Crime Incidents. Using Table 2 (Crime ethnicity annual breakdown).
+# Gap: 2019–2020 data missing (force didn't supply).
+source_file: "2023/FOI 01788 23 Appendix.xlsx"
+
+extraction:
+  sheet: "FOI-1788-23"
+  # Table 2 header is at Excel row 23 (0-indexed 22).
+  header: 22
+  nrows: 4          # 3 ethnicity rows + Grand Total (which we skip)
+  shape: wide_years
+  columns:
+    ethnicity: "Self-Defined Ethnicity"
+  year_columns:
+    2017: 2017
+    2018: 2018
+    2021: 2021
+    2022: 2022
+    2023: 2023
+  skip_ethnicities:
+    - "Grand Total"
+
+mapping:
+  "Any Other Asian Background": "Asian - Other"
+  "Chinese": "Asian - Chinese"
+  "White And Asian": "Mixed - White and Asian"

@@ -1,0 +1,32 @@
+force_id: thames_valley_police
+display_name: Thames Valley Police
+
+# No Wave-4 response. Wave-2 (2022) XLSX covers 1/1/2019–31/7/2022.
+# Layout: year-ffill + month + 2 ethnicity groups × 3 sub-columns each
+# (Valid Crime | Non-Crime Occurrence | Total Incidents). For replicating
+# fct_crime_aggs__v2.csv we use Valid Crime columns only.
+# Header at rows 3 (ethnicity group) + 4 (sub-column type); data rows 5-47.
+source_file: "2022/0001 3622 22 DATA.XLSX.xlsx"
+
+extraction:
+  header: null
+  nrows: 48
+  drop_row_indices: [0, 1, 2, 3, 4]
+  rename_columns:
+    1: "year"
+    2: "month"
+    3: "Any other Asian background"
+    6: "Chinese"
+  ffill_columns:
+    - "year"
+  shape: wide_ethnicity
+  columns:
+    year: "year"
+    month: "month"
+  ethnicity_columns:
+    - "Any other Asian background"
+    - "Chinese"
+
+mapping:
+  "Any other Asian background": "Asian - Other"
+  "Chinese": "Asian - Chinese"

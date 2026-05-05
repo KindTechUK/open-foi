@@ -1,0 +1,44 @@
+force_id: cambridgeshire_constabulary
+display_name: Cambridgeshire Constabulary
+
+# Wave-4 (2025) PDF has the cleanest long-horizon view — annual summary
+# table for 2020-2025 on page 0 with a single row per ethnicity and 6 year
+# columns. Wave-2 XLSX has 4 stacked per-year wide_months tables (more
+# granular but structurally awkward); we take the annual rollup here.
+# Note: 2025 data covers 1 Jan – 31 May 2025 (partial year, per the PDF's
+# footnote).
+source_file: "Cambs Annex A FOI2025 04507.pdf"
+
+extraction:
+  page: 0
+  table_index: 0
+  header: 0
+  shape: wide_years
+  rename_columns:
+    "": "Ethnicity"
+  columns:
+    ethnicity: "Ethnicity"
+  year_columns:
+    "2020": 2020
+    "2021": 2021
+    "2022": 2022
+    "2023": 2023
+    "2024": 2024
+    "2025 *": 2025
+  skip_ethnicities:
+    - "Total"
+
+mapping:
+  "Cambodian": "Asian - Other"
+  "Chinese": "Asian - Chinese"
+  "Chinese (Hong Kong)": "Asian - Chinese"
+  "Filipino": "Asian - Other"
+  "Japanese": "Asian - Other"
+  "Korean (South)": "Asian - Other"
+  "Malaysian": "Asian - Other"
+  "Mongolian": "Asian - Other"
+  "Singaporean": "Asian - Other"
+  "Taiwanese": "Asian - Other"
+  "Thai": "Asian - Other"
+  "Vietnamese": "Asian - Other"
+  "Chinese, Japanese or Southeast Asian": "Asian - Other"

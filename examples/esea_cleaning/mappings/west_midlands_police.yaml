@@ -1,0 +1,54 @@
+force_id: west_midlands_police
+display_name: West Midlands Police
+
+source_file: "2523A 25 attachment.pdf"
+
+# West Midlands supplied 5 tables across 2 PDF pages, one per year 2021-2025.
+# Each table: row 0 is a merged header, row 1 has month-year column names
+# (Jan-21, Feb-21, ...). Using header=1 captures those directly.
+# Keeping each table's column names distinct (pdf_normalize_columns: false)
+# so wide_months can match Jan-21..Dec-25 via its built-in month-year regex.
+# After concat, each row is sparse (values only in its year's month cols).
+# 2021 only has data from April onwards per the force's own note.
+extraction:
+  pdf_tables:
+    - [0, 0]
+    - [0, 1]
+    - [0, 2]
+    - [1, 0]
+    - [1, 1]
+  header: 1
+  pdf_normalize_columns: false
+  shape: wide_months
+  columns:
+    ethnicity: ""   # col 0's header is blank after header=1 (merged cell artefact)
+  skip_ethnicities:
+    - "Total"
+
+# Source labels → ONS. "Blank/Not recorded" → Not stated for consistency.
+mapping:
+  "Blank/Not recorded": "Not stated / Unknown"
+  "Data not available": "Not stated / Unknown"
+  "African": "Black - African"
+  "Any Other Asian Background": "Asian - Other"
+  "Any Other Black Background": "Black - Other"
+  "Any Other Ethnic Group": "Other - Any other ethnic group"
+  "Any Other Mixed Background": "Mixed - Other"
+  "Any Other White Background": "White - Other"
+  "Arab": "Other - Arab"
+  "Bangladeshi": "Asian - Bangladeshi"
+  "Caribbean": "Black - Caribbean"
+  "Chinese": "Asian - Chinese"
+  "Gypsy or Irish Traveller": "White - Gypsy or Irish Traveller"
+  "Indian": "Asian - Indian"
+  "Mixed White and Asian": "Mixed - White and Asian"
+  "Mixed White and Black African": "Mixed - White and Black African"
+  "Mixed White and Black Caribbean": "Mixed - White and Black Caribbean"
+  "White And Asian": "Mixed - White and Asian"
+  "White And Black African": "Mixed - White and Black African"
+  "White And Black Caribbean": "Mixed - White and Black Caribbean"
+  "Not known": "Not stated / Unknown"
+  "Not stated": "Not stated / Unknown"
+  "Pakistani": "Asian - Pakistani"
+  "White British": "White - English/Welsh/Scottish/Northern Irish/British"
+  "White Irish": "White - Irish"

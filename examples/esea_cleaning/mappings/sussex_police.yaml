@@ -1,0 +1,41 @@
+force_id: sussex_police
+display_name: Sussex Police
+
+source_file: "FOI 2577.25 Hate Crime Racial.pdf"
+
+# Sussex submitted a clean 2-page PDF with a single wide_ethnicity table per
+# page. Column 0 = "Year & Month" (Jan-2020 .. May-2025), columns 1-6 = ESEA
+# ethnicity codes, column 7 = Total (dropped).
+# The last row of page 1 is a "Total" row — its date string doesn't parse
+# so it drops out cleanly via unparseable-date warning.
+extraction:
+  pdf_pages: [0, 1]
+  header: 0
+  # Positional columns → human-readable names before shape handler runs.
+  rename_columns:
+    0: "date"
+    1: "A1. Asian Indian inc Asian British"
+    2: "A2. Asian Pakistani inc Asian British"
+    3: "A3. Asian Bangladeshi inc Asian British"
+    4: "A4. Asian Chinese inc Asian British"
+    5: "A9. Any other Asian background"
+    6: "M3. Mixed White & Asian"
+    7: "Total"
+  shape: wide_ethnicity
+  columns:
+    date: "date"
+  ethnicity_columns:
+    - "A1. Asian Indian inc Asian British"
+    - "A2. Asian Pakistani inc Asian British"
+    - "A3. Asian Bangladeshi inc Asian British"
+    - "A4. Asian Chinese inc Asian British"
+    - "A9. Any other Asian background"
+    - "M3. Mixed White & Asian"
+
+mapping:
+  "A1. Asian Indian inc Asian British": "Asian - Indian"
+  "A2. Asian Pakistani inc Asian British": "Asian - Pakistani"
+  "A3. Asian Bangladeshi inc Asian British": "Asian - Bangladeshi"
+  "A4. Asian Chinese inc Asian British": "Asian - Chinese"
+  "A9. Any other Asian background": "Asian - Other"
+  "M3. Mixed White & Asian": "Mixed - White and Asian"

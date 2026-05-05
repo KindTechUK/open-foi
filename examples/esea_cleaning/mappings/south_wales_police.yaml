@@ -1,0 +1,34 @@
+force_id: south_wales_police
+display_name: South Wales Police
+
+# Wave-2 (2022) PDF. Single clean table: self-defined ethnicity with 6 cols
+# (A1/A2/A3/A9/M3/O1 + Grand Total). Year rows give annual totals (ignored
+# by year_sections — it only emits from month rows); 12 month rows follow
+# each year. Covers 2019, 2020, 2021, Jan-Apr 2022.
+# Wave-4 (2025) PDFs have no extractable tables (text-only) so we use 2022.
+source_file: "2022/Response data 479 22.pdf"
+
+extraction:
+  page: 0
+  table_index: 0
+  header: 0
+  shape: year_sections
+  columns:
+    section: "Year/Month"
+  ethnicity_columns:
+    - "A1. Asian - Indian"
+    - "A2. Asian - Pakistani"
+    - "A3. Asian - Bangladeshi"
+    - "A9. Any other Asian background"
+    - "M3. White & Asian"
+    - "O1. Chinese"
+  drop_sections:
+    - "Grand Total"
+
+mapping:
+  "A1. Asian - Indian": "Asian - Indian"
+  "A2. Asian - Pakistani": "Asian - Pakistani"
+  "A3. Asian - Bangladeshi": "Asian - Bangladeshi"
+  "A9. Any other Asian background": "Asian - Other"
+  "M3. White & Asian": "Mixed - White and Asian"
+  "O1. Chinese": "Asian - Chinese"
