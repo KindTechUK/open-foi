@@ -4,7 +4,7 @@ dynamic = ["version"]
 description = "CLI tool for searching, viewing, and fetching FOI requests from WhatDoTheyKnow.com"
 readme = "README.md"
 requires-python = ">=3.11"
-license = "MIT"
+license = "Apache-2.0"
 authors = [
     { name = "KindTech" },
 ]
@@ -14,7 +14,6 @@ classifiers = [
     "Environment :: Console",
     "Intended Audience :: Developers",
     "Intended Audience :: Science/Research",
-    "License :: OSI Approved :: MIT License",
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
