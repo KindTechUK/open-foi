@@ -1,6 +1,6 @@
 """Tests for Pydantic model parsing."""
 
-from foi_cli.models import FeedEvent, InfoRequest, PublicBody, User
+from foi_cli.models import FeedEvent
 
 
 def test_parse_feed_event(sample_event):

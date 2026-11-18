@@ -4,7 +4,6 @@ import json
 
 import pytest
 
-
 SAMPLE_FEED_EVENT = {
     "id": 12345,
     "event_type": "sent",

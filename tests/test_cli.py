@@ -1,9 +1,9 @@
 """CLI integration tests using Click's CliRunner."""
 
 import json
+from unittest.mock import MagicMock, patch
 
 from click.testing import CliRunner
-from unittest.mock import patch, MagicMock
 
 from foi_cli.cli import cli
 from tests.conftest import SAMPLE_FEED_EVENT, SAMPLE_FEED_EVENT_RESPONSE

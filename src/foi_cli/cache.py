@@ -4,7 +4,6 @@ import sqlite3
 import time
 from pathlib import Path
 
-
 DEFAULT_CACHE_DIR = Path.home() / ".config" / "open-foi"
 DEFAULT_TTL = 3600  # 1 hour
 

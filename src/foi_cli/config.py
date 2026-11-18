@@ -4,7 +4,6 @@ import tomllib
 from dataclasses import dataclass, field
 from pathlib import Path
 
-
 CONFIG_PATH = Path.home() / ".config" / "open-foi" / "config.toml"
 
 
