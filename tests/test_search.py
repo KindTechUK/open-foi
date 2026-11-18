@@ -1,6 +1,6 @@
 """Tests for search query building and aggregation logic."""
 
-from foi_cli.search import build_query, _parse_events, _aggregate_requests
+from foi_cli.search import _aggregate_requests, _parse_events, build_query
 
 
 def test_build_query_simple():
@@ -78,6 +78,7 @@ def test_aggregate_dedup_event_ids(sample_event):
 def test_pagination_continues_past_short_page(sample_event, sample_event_response):
     """Pagination should stop only on empty page, not on pages with < 25 events."""
     from unittest.mock import MagicMock
+
     from foi_cli.search import search_all
 
     # Page 1: 10 events (short page), Page 2: 5 events, Page 3: empty

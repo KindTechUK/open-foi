@@ -61,7 +61,7 @@ def _aggregate_requests(events: list[FeedEvent], query: str, pages: int) -> Sear
         grouped[event.info_request.url_title].append(event)
 
     results: list[RequestResult] = []
-    for url_title, req_events in grouped.items():
+    for req_events in grouped.values():
         req_events.sort(key=lambda e: e.created_at)
         info = req_events[-1].info_request
         body = req_events[-1].public_body

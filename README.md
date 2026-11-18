@@ -21,10 +21,10 @@ Requires Python 3.11+.
 
 ```bash
 # Install from GitHub
-uv pip install git+https://github.com/kindtech/open-foi
+uv pip install git+https://github.com/KindTechUK/open-foi
 
 # Or clone and install locally
-git clone https://github.com/kindtech/open-foi.git
+git clone https://github.com/KindTechUK/open-foi.git
 cd open-foi
 uv pip install -e .
 ```
@@ -142,7 +142,7 @@ Please use this tool responsibly. If you plan to make large-scale or high-freque
 ## Development
 
 ```bash
-git clone https://github.com/kindtech/open-foi.git
+git clone https://github.com/KindTechUK/open-foi.git
 cd open-foi
 uv venv && uv pip install -e ".[dev]"
 
